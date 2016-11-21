@@ -1,0 +1,850 @@
+
+body{
+	font-family:'Microsoft YaHei';
+    font-size: 13px;
+    overflow-y : hidden ;
+}
+
+/* @media screen and (max-width:980px)
+ {
+ }
+ @media screen and (max-width:580px)
+ {
+ 
+ }
+ @media screen and (max-width:380px)
+ {
+ body{
+ font-size:8px;
+ }
+ } */
+*{
+	margin:0;
+	padding:0;
+}
+input::-ms-clear{display:none;}
+input::-ms-reveal{display:none;}
+html,body{
+	-webkit-text-size-adjust:none;
+}
+
+
+/*========================================login=======================================*/
+
+/*=====head=======*/
+	#login_header{
+	  width: 100%;
+	  min-width:1280px;
+	  height:50px;
+	  background-color:#212843;
+	  z-index: 5; 
+	  position: absolute;
+	}
+	#login_header_q{
+		  width: 100%;
+		  min-width:1280px;
+		  height:98px;
+		  background-color:#ffffff;
+	}
+	.login_span{
+			display:block;
+			width:1280px;
+			height:38px;
+			margin:0 auto;
+			padding-top:12px;
+	}
+	.login_span img{
+			padding-left:150px;
+	}
+
+	.login_span_q{
+			display:block;
+			width:1280px;
+			height:98px;
+			margin:0 auto;
+			padding-top:12px;
+
+	}
+
+	.login_span_q img{
+			padding-left:150px;
+			padding-top: 29px;
+	}
+
+/*======content======*/	
+	#login_content{
+		position: absolute;
+		width:100%;
+		height: 100%;
+		background-color:#ffffff;
+	}
+	.logo_icon{
+		position: absolute;
+		top: 50%;
+		margin: -80px 0 0 -302px;
+	}
+	.form_content{
+			width:100%;
+			height:100%;
+			min-width: 1024px;
+			position:absolute;
+			background: url(../images/login_bg1.jpg) no-repeat ;
+			background-size: 100% 100%;
+	}
+	.form_content_q{
+			width:100%;
+			margin:0 auto;
+			background-color:#e8e8e8;
+			height:450px;
+			position:relative;
+	}
+		
+			/*=====ScrollPic&&LoginForm=====*/
+			.scrollDiv{
+				width:1280px;
+				margin:0 auto;
+				position:relative;
+			}
+			.scrollDiv_q{
+				width:100%;
+				margin:0 auto;
+				position:relative;
+			}
+			.scrollDiv  .scrollDiv_q ul li{
+				list-style:none;
+			}
+				/*.loginForm{
+					position:absolute;
+					width:310px;
+					padding-left:30px;
+					padding-top:26px;
+					height:284px;
+					background-color:#fbfbfb;
+					left:760px;
+					top:55px;
+					z-index:999;
+				}*/
+				.loginForm_q{
+					position:absolute;
+					width:310px;
+					padding-left:30px;
+					padding-top:26px;
+					height:320px;
+					/* background-color:#fbfbfb; */
+					background: -webkit-gradient(linear, 0 0, 0 100%, from(rgba(34, 66, 91, 0.5)), to(rgba(50, 80, 103, 0.5)));
+					moz-border-radius: 15px;
+					-webkit-border-radius: 15px;
+					border-radius: 15px;
+					left:45%;
+					top:55px;
+					z-index:999;
+				}
+				.loginForm{
+					position:absolute;
+					width:350px;
+					height:240px;
+					padding-left:75px;
+					padding-top:30px;
+					border-radius: 10px;
+					-webkit-border-radius: 10px;
+					background-color:#fbfbfb;
+					left:50%;
+					top:50%;
+					margin:-135px 0 0 -212px;
+					z-index:900;
+				}
+				.re_passwd{
+					position:absolute;
+					width:350px;
+					height:400px;
+					padding-left:75px;
+					padding-top:30px;
+					border-radius: 10px;
+					-webkit-border-radius: 10px;
+					background-color:#fbfbfb;
+					left:50%;
+					top:35%;
+					margin:-135px 0 0 -212px;
+					z-index:900;
+				}
+				.lineWidth{
+					width: 357px;
+					height: 3px;
+				}
+				.lineHeight{
+					position: absolute;
+					top: 353px;
+					left: 625px;
+					z-index: 999;
+				}
+				.lineHeight img{
+					width: 2px;
+					height: 140px;
+				}
+					.loginForm_P{
+						color:#656565;
+						font-size:16px;
+						font-weight:bold;
+						font-family:'Microsoft YaHei';
+					}
+					.loginForm_P_q{
+						color:#e8e8e8;
+						font-size:16px;
+						font-weight:bold;
+						font-family:'Microsoft YaHei';
+						width: 278px;
+						height: 30px;
+						text-align: center;
+						border-bottom: 1px solid #4a657a;
+					}
+					
+					.uName{
+						width:278px;
+						height:36px;
+						margin-top:6px;
+						 border: none;
+						    border-bottom:1px solid #d9d9d9 ;
+						moz-border-radius: 1px;
+						-webkit-border-radius: 1px;
+						border-radius: 1px;
+						background-color: #fbfbfb;
+					}
+						.uName_{
+							width: 278px;
+						    height: 36px;
+						    margin-top: 23px;
+						    border: none;
+						    border-bottom:1px solid #d9d9d9 ;
+						    moz-border-radius: 1px;
+						    -webkit-border-radius: 1px;
+						    border-radius: 1px;
+						}
+						.uName_q{
+							width: 278px;
+						    height: 36px;
+						    margin-top: 18px;
+						    moz-border-radius: 1px;
+						    -webkit-border-radius: 1px;
+						    border-radius: 1px;
+						    background-color: #fbfbfb;
+						}
+					.userName{
+						font-family:'Microsoft YaHei';
+						outline:none;
+						border:none;
+						height:36px;
+						width:200px;
+						line-height:36px;
+						color:#999999;
+						font-size:20px;
+                        background:#fbfbfb;
+					}
+					.mail{
+						font-family:'Microsoft YaHei';
+						outline:none;
+						border:none;
+						height:36px;
+						width:200px;
+						line-height:36px;
+						color:#999999;
+						font-size:18px;
+                        background:#fbfbfb;
+					}
+
+
+						.uName_pic{
+							float:left;
+						}
+/*						.uName_get{
+							float:right;
+						}*/
+					#loginCancle1{
+						display: none;
+						float: right;
+					    padding-top: 8px;
+					    padding-right: 10px;
+					}
+					#loginCancle2{
+						display: none;
+						float: right;
+					    padding-top: 8px;
+					    padding-right: 10px;
+					}
+					.uPwd{
+						width:278px;
+						height:36px;
+						margin-top:8px;
+						border: none;
+						border-bottom:1px solid #d9d9d9 ;
+						moz-border-radius: 1px;
+						-webkit-border-radius: 1px;
+						border-radius: 1px;
+						background-color: #fbfbfb;
+					}
+						.uPwd_{
+							width:278px;
+							height:36px;
+							margin-top:14px;
+							border: 1px solid #d3d3d3;
+						    border: none;
+						    border-bottom:1px solid #d9d9d9 ;
+							moz-border-radius: 1px;
+							-webkit-border-radius: 1px;
+							border-radius: 1px;
+						}
+						.uPwd_q{
+							width:278px;
+							height:36px;
+							margin-top:14px;
+							border:1px solid #d3d3d3;
+							moz-border-radius: 1px;
+							-webkit-border-radius: 1px;
+							border-radius: 1px;
+							background-color: #fbfbfb;
+						}
+					.userPwd{
+						font-family:'Microsoft YaHei';
+						outline:none;
+						border:none;
+						height:36px;
+						width:200px;
+						line-height:36px;
+						color:#999999;
+						font-size:20px;
+                        background:#fbfbfb;
+					}
+						.uPwd_pic{
+							float:left;
+						}
+					.uYzm{
+						width:270px;
+						height:30px;
+						margin-top:8px;
+						padding:0 5px 5px 0;
+						border: none;
+						border-bottom:1px solid #d9d9d9 ;
+						
+					}
+						.uYzm_{
+							width:278px;
+							height:36px;
+							overflow: hidden;
+							margin-top:8px;
+							border: none;
+						    border-bottom:1px solid #d9d9d9 
+						}
+					
+					.uYzm_1{
+						float:left;
+						height:28px;
+						width:130px;
+						border: none;
+						moz-border-radius: 1px;
+						-webkit-border-radius: 1px;
+						border-radius: 1px;
+					}
+					.uYzm_2{
+						float:left;
+						margin-left:52px;
+						width:80px;
+						height:30px;
+						
+					}
+						.uYzm_2 img{
+							width:80px;
+							height:30px;
+						}
+					.uYzm_3{
+						float:left;
+						margin-left:15px;
+						width:14px;
+						height:30px;
+						background:url('../images/shuaxin.jpg') no-repeat;
+						background-position: 0px 8px;
+					}
+					.uYzm_3_q{
+						float:left;
+						margin-left:15px;
+						width:14px;
+						height:30px;
+						background:url('../images/shuaxin_q.png') no-repeat;
+						background-position: 0px 8px;
+					}
+					.userYzm{
+						font-family:'Microsoft YaHei';
+						outline:none;
+						padding-left:40px;
+						border:none;
+						height:28px;
+						width:90px;
+						line-height:28px;
+						color:#999999;
+						font-size:13px;
+						background:#fbfbfb;
+					}
+						
+					
+					.rememberMe{
+						margin-top:17px;
+						width:268px;
+						height: 15px;
+					}
+						.remember{
+							float: left;
+							width:14px;
+							height:14px;
+						}
+						.rememberMe label{
+							float: left;
+							font-size:12px;
+							font-family:'Microsoft YaHei';
+							margin-left:8px;
+							height: 14px;
+							line-height:14px;
+							color: #999999;
+						}
+						#errorInfo{
+							float: left;
+							font-size:12px;
+							font-family:'Microsoft YaHei';
+							margin-left:8px;
+							height: 14px;
+							line-height:14px;
+							color: red;
+						}
+					.btnLogin{
+						margin-top:10px;
+						width:290px;
+						height:42px;
+						/*background-color:#f57b73;*/
+					}
+					.btnLogin_q{
+						margin-top:10px;
+						width:290px;
+						height:42px;
+						background-color:#f57b73;
+					}
+						.btnLogin button{
+							cursor:pointer;
+							font-family:'Microsoft YaHei';
+							width:278px;
+							height:42px;
+							outline:none;
+							border:none;
+							font-size:16px;
+							color:#ffffff;
+							margin-top:19px ;
+							background-color:#12aef3;
+							border-radius: 5px;
+							-webkit-border-radius: 5px;
+						}
+						#button_get {
+							cursor:pointer;
+							font-family:'Microsoft YaHei';
+							width:auto;
+							height:28px;
+							outline:none;
+							border:none;
+							font-size:16px;
+							color:#ffffff;
+	/*						margin-top:19px ;*/
+							background-color:#12aef3;
+							border-radius: 5px;
+							-webkit-border-radius: 5px;
+							position: absolute;
+							left: 280px;
+							top: 80px;
+						}
+						.btnLogin_q button{
+							cursor:pointer;
+							font-family:'Microsoft YaHei';
+							width:100%;
+							height:42px;
+							outline:none;
+							border:none;
+							font-size:16px;
+							color:#ffffff;
+						}
+						
+						
+			/*=====cloud=====*/
+			.cloud_bg{
+				width:100%;
+				height:231px;
+				position:absolute;
+				left:0px;
+				top:295px;
+				background:url(../images/cloud.png) center bottom no-repeat;
+			}
+	}
+		.content_1{
+			width:100%;
+			height:400px;
+				
+		}
+			.content1{
+				width:1080px;
+				height:400px;
+				margin:0 auto;
+				position:relative;
+				
+			}
+				.content1_Wenzi{
+					position:absolute;
+					left:240px;
+					top:155px;
+				}
+					.content1_Wenzi_p1{
+						font-size:18px;
+						color:#2799c9;
+						margin-bottom:24px;
+					}
+					.content1_Wenzi_p2{
+						
+						font-size:15px;
+						color:#474747;
+						margin-top:6px;
+					}
+				.content1_Tupian{
+					position:absolute;
+					left:800px;
+					top:78px;
+					
+				}
+		
+		.content_2{
+			width:100%;
+			height:400px;
+			background-color:#f9f9f9;
+			
+		}
+			.content2{
+				width:1080px;
+				height:400px;
+				margin:0 auto;
+				position:relative;
+				
+			}
+			
+				.content2_Wenzi{
+					position:absolute;
+					left:505px;
+					top:155px;
+				}
+			
+					.content2_Wenzi_p1{
+							font-size:18px;
+							color:#f6b63a;
+							margin-bottom:24px;
+					}
+				.content2_Tupian{
+					position:absolute;
+					left:200px;
+					top:95px;
+					
+				}
+				
+				
+				
+		.content_3{
+			width:100%;
+			height:400px;
+			background-color:#f9f9f9;
+		}
+			.content3{
+				width:1080px;
+				height:400px;
+				margin:0 auto;
+				position:relative;
+				
+			}
+			.content3_Wenzi{
+					position:absolute;
+					left:240px;
+					top:155px;
+				}
+			
+					.content3_Wenzi_p1{
+							font-size:18px;
+							color:#9cbf3e;
+							margin-bottom:24px;
+					}
+				.content3_Tupian{
+					position:absolute;
+					left:800px;
+					top:78px;
+					
+				}
+				
+				
+		/*=====bank=======*/
+		.content_bank{
+			width:100%;
+			height:250px;
+			background-color:#f9f9f9;
+		}
+			.content_bank1{
+				width:1280px;
+				margin:0 auto;
+			}
+				.content_bank1 p{
+					width:100%;
+					height:90px;
+					text-align:center;
+				}
+				.content_bank1 p img{
+					padding-top:34px;
+				}
+				.content_bank1 ul{
+					margin:0 150px;
+				}	
+				.content_bank1 ul li{
+					float:left;
+					list-style:none;
+				}
+				.bankLi{
+					padding-left:37px;
+				}
+			
+
+
+			
+/*=====footer=======*/
+	#login_footer{
+		width:100%;
+		height:45px;
+		position: absolute; 
+		bottom: 0; 
+		z-index: 5;
+	}
+	#login_footer_q{
+		width:100%;
+		height:45px;
+		background-color:#ffffff;
+	}
+	
+	#login_footer p{
+			color:#ffffff;
+			font-size:15px;
+			text-align:center;
+			padding-top:17px;
+	}
+	#login_footer_q p{
+			color:#7c7c7c;
+			font-size:14px;
+			text-align:center;
+			padding-top:17px;
+	}
+
+/*
+
+*/
+.red-border{
+    border : 1px solid red;
+}
+	.loginForm_errorInfo{
+/*		display: none;	*/
+		margin-top: 4px;	
+		padding-left: 13px;
+	    height: 23px;
+	    border: 1px solid #e9e9e9;	
+	    background-color: #f8f8f8; 
+	    color: red;
+	    font-size: 15px;
+	    font-family: 'Microsoft YaHei';
+	    line-height: 23px;
+	    width: 265px;
+	}
+	.loginForm_errorInfo_q{
+		/*display: none;	*/
+		margin-top: 4px;	
+		padding-left: 13px;
+	    height: 23px;
+	    
+	    color: red;
+	    font-size: 12px;
+	    font-family: 'Microsoft YaHei';
+	    line-height: 23px;
+	    width: 265px;
+	}
+	
+.apply-introduce{
+	width:270px;
+	height:30px;
+	margin-top:14px;
+	text-align: center;
+}
+.apply-introduce a{
+	float:left;
+	margin-left:15px;
+	width:120px;
+	height:30px;
+	font-size:14px;
+	color:#ffffff;
+}
+
+
+
+/*登陆弹出窗*/
+.inner{
+    color:#323236;
+    background:#f6f6f6;
+    padding:0 22px;
+    /*position: relative;*/
+}
+.clearfix {
+    overflow: hidden;
+}
+.fl{
+    float:left;
+}
+.fr{
+    float:right;
+}
+.red {
+    color: red;
+}
+.btn6,
+.btn7{
+    border:0 none;
+    font-size:14px;
+    line-height: 24px;
+    display: inline-block;
+    padding:6px 30px;
+    border-radius: 5px;
+    background:#f56f67;
+    color:#fff;
+    text-decoration: none;
+    font-family: 'microsoft yahei';
+}
+.btn6:hover{
+    text-decoration: none;
+    background:#d8524a;
+}
+.btn7{
+    text-decoration: none;
+    background:#8a8383;
+}
+.btn7:hover{
+    text-decoration: none;
+    background:#727272;
+}
+
+.btn7-disabled{
+    text-decoration: none;
+    background:#8a8383;
+    cursor: default;
+}
+.btn7-disabled:hover{
+    text-decoration: none;
+    background:#8a8383;
+    cursor: default;
+}
+.close{
+    display:block;
+    width:12px;
+    height:12px;
+    text-indent: 1000em;
+    overflow:hidden;
+    background:url(../images/close_ico.png) right top no-repeat;
+}
+.report-template{
+    width:508px;
+    z-index:1001;
+}
+.report-template .hd{
+    background:#212843;
+}
+
+.report-template .hd-lf{
+    color:#ebebec;
+    font-size:13px;
+    line-height: 24px;
+    padding:5px 0 5px 17px;
+}
+
+.report-template .hd-rt{
+    color:#fff;
+    font-size:12px;
+    line-height:12px;
+    padding:10px 20px 10px 0;
+    text-decoration: none;
+    cursor:pointer;
+}
+.report-template .bd{
+    border-left:1px solid #d3d3d3;
+    border-right:1px solid #d3d3d3;
+    min-height:30px;
+    background:#fff;
+    /*padding:24px 36px;*/
+   padding:24px 10px;
+}
+.report-template .bd table{
+    width: 100%;
+}
+.report-template .bd td{
+	/*width: 15%;*/
+    padding:6px 12px;
+    color:#414142;
+}
+.report-template .bd td input{
+	width: 220px;
+	border: 1px solid #c6c6c6;
+    padding: 3px;
+    height: 18px;
+    font: 13px/18px 'microsoft yahei';
+    color: #333;
+    outline: 0;
+}
+.report-template .bd .lb{
+    font:13px/24px 'microsoft yahei';
+    padding:6px 12px;
+    /*width:110px;*/
+   /*	width:100px;*/
+    /*background:#f3f3f3;*/
+    text-align:right;
+}
+.report-template .bd .lb2{
+    font:13px/24px 'microsoft yahei';
+    padding:6px 12px;
+    width:110px;
+    background:#f9f9f9;
+    text-align:center;
+}
+
+.report-template .bd .text{
+    font:13px/24px 'microsoft yahei';
+    padding:6px 12px;
+    background:#fff;
+    text-align:left;
+}
+.report-template .bd .table2{
+    width: 100%;
+}
+.report-template .ft{
+    /*border:1px solid #d3d3d3;
+    border-top:0 none;*/
+    min-height:60px;
+    background:#fff;
+    text-align: center;
+ }
+.report-template-mask{
+    left:0;
+    top:0;
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:#000;
+    opacity: 0.7;
+    display: none;
+    z-index:1000;
+}
+.tooltip {
+    padding: 3px 0 0 0px;
+}
+.tooltip .error {
+    color: #424242;
+    display: block;
+    padding: 0px 0 3px 23px;
+    background: url(../images/error.png) 6px 6px no-repeat;
+}

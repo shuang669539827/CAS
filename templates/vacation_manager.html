@@ -1,0 +1,120 @@
+{% extends 'leavebase.html' %}
+{% load bootstrap3 %}
+{% block content %}
+            <li><a href="/leave/apply/">申请</a></li>
+            <li><a href="/leave/notes/">申请记录</a></li>
+            <li><a href="/leave/myholiday/">假日详情</a></li>
+            {% if num > 0 %}
+            <li><a href="/leave/myapproval/">审批记录</a></li>
+            {% endif %}
+            {% if user.pro.vacation_manager %}
+            <li class="active"><a href="/leave/manager/">管理界面</a></li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h2 class="sub-header">本月申请记录<a href="/leave/writecsv/" style="text-decoration:none; position:relative; left:75%; font-size:16px;">导出文件</a></h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th width="50%">申请人</th>
+                  <th>总天数</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for obj in month_objs%}
+                {% if obj.apply_day >= 5 %}
+                <tr>
+                  <td  style="color:red;">{{obj.user.first_name}}</td>
+                  <td  style="color:red;">{{obj.apply_day}}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td>{{obj.user.first_name}}</td>
+                  <td>{{obj.apply_day}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <h2 class="sub-header">已审批</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="width:7%;">申请人</th>
+                  <th style="width:13%;">申请时间</th>
+                  <th style="width:5%;">假期类型</th>
+                  <th style="width:13%;">开始时间</th>
+                  <th style="width:13%;">结束时间</th>
+                  <th style="width:5%;">总天数</th>
+                  <th style="width:40%;">申请理由</th>
+                  <th style="width:4%;">附件</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for obj in applyd_objs%}
+                <tr>
+                  <td>{{obj.user.first_name}}</td>
+                  <td>{{obj.apply_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.leavetype}}</td>
+                  <td>{{obj.start_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.end_date | date:'Y-m-d'}}</td>
+                  {% if obj.total_day %}
+                  <td>{{obj.total_day}}</td>
+                  {% else %}
+                  <td>0</td>
+                  {% endif %}
+                  <td>{{obj.desc}}</td>
+                  {% if obj.upfile %}
+                  <td><a href="/leave/down/?obj_id={{obj.id}}">下载</a></td>
+                  {% else %}
+                  <td></td>
+                  {% endif %}
+                  
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <br>
+          <br>
+          <h2 class="sub-header">待审批</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="width:7%;">申请人</th>
+                  <th style="width:13%;">申请时间</th>
+                  <th style="width:7%;">假期类型</th>
+                  <th style="width:13%;">开始时间</th>
+                  <th style="width:13%;">结束时间</th>
+                  <th style="width:40%;">申请理由</th>
+                  <th style="width:7%;">附件</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for obj in applying_objs%}
+                <tr>
+                  <td>{{obj.user.first_name}}</td>
+                  <td>{{obj.apply_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.leavetype}}</td>
+                  <td>{{obj.start_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.end_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.desc}}</td>
+                  {% if obj.upfile %}
+                  <td><a href="/leave/down/?obj_id={{obj.id}}">下载</a></td>
+                  {% else %}
+                  <td></td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <title>CAS</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+	<link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
+
+    <!-- build:css  ../css/login.min.css -->
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/login.css"/>
+    <!--endbuild-->
+
+</head>
+<body ng-controller="loginController">
+<div id="login_content">
+    <div class="form_content">
+        <div>
+            <div class="loginForm" ng-keyup="myKeyup($event)">
+            <form class="form-signin" action="/login/" method="post">{% csrf_token %}
+                {% if error %}
+                <p class="loginForm_errorInfo" id="loginForm_errorInfo" style="text-align:center;">{{error}}</p>
+                {% endif %}
+                <input type="text" name="service" value="{{service}}" style="display:none;">
+                <div class="uName_" id="uName_">
+                    <span class="uName_pic"><img src="/static/images/uname.png"/></span>
+                    <input  type="text" id="Username" name="Username" class="userName" placeholder="请输入您的用户名" required />
+                    <a class="loginCancle" id="loginCancle1" ng-click="loginCancle()"><img src="/static/images/cancle.png"></a>
+                </div>
+                <div class="uPwd_" id="uPwd_">
+                    <span class="uPwd_pic"><img src="/static/images/upwd.png"/></span>
+                    <input type="text" onfocus="this.type = 'password'"  class="userPwd" id="Password" name="Password"   placeholder="请输入您的密码" required/>
+                    <a class="loginCancle" id="loginCancle2" ng-click="loginCancle1()"><img src="/static/images/eye.png"></a>
+                </div>
+                <div class="btnLogin">
+                    <a href="/re_passwd/" style="text-decoration:none; cursor:pointer;">忘记密码?</a>
+                    <button class="loginBtn" id="loginBtn" type="submit">登&nbsp;&nbsp;&nbsp;&nbsp;录</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+    <footer id="login_footer">
+    	<p>Copyright &copy; 2014百融（北京）金融信息服务股份有限公司.All Right Reserved.京ICP备14032774号</p>
+	</footer>
+</div>
+<script>
+function isArr(o){
+    return Object.prototype.toString.call(o) === '[object Array]';
+}
+function isObj(o){
+    return Object.prototype.toString.call(o) === '[object Object]';
+}
+function notInArr(obj,arr){
+    //text是否重复
+    var hasText = true;
+    if(obj.text){
+        arr.forEach(function(v,i,arr){
+            if(obj.text === v.text){
+                hasText = false;
+            }
+        })
+    }
+    return hasText;
+}
+function mix(o1,o2){
+    var obj1 = o1,
+            obj2 = o2;
+    if(isObj(obj1)){
+        for(var item in obj1){
+            if(!obj2.hasOwnProperty(item)){
+                obj2[item] = obj1[item];
+            }else{//存在//
+                //console.info(item);
+                if(isObj(obj2[item]) || isArr(obj2[item])){//存在且为 数组或对象
+                    //console.warn(item);
+                    mix(obj1[item],obj2[item]);
+                }else{
+                      obj2[item] = obj1[item];
+                }
+            }
+        }
+    }else if(isArr(obj1)){
+        obj1.forEach(function(v,i,arr){
+            obj2.forEach(function(k,j,arr2){
+                if(isObj(v)){
+                    if(isObj(k)){
+                        //console.log(60,v,k);
+                        if(v.text === k.text){//重复菜单
+                            //console.log(62,v,k);
+                            mix(v,k);
+                        }else{
+                            //console.log(65,v,k);
+                            //2不存在推入
+                            if(notInArr(v,obj2)){
+                                //console.log(i,'====',j,v);
+                                obj2.splice(i,0,v);
+                                //obj2.push(v);
+                            }
+                        }
+                    }else{
+
+                    }
+                }else{
+
+                }
+            })
+        });
+    }
+    return obj2;
+}
+
+function sort(currentArr,sourceArr){
+    var sourceArr = _markSource(sourceArr),
+            currentArr = _markCurrent(currentArr,sourceArr);
+    var tempArr =  _finalSortArr(currentArr);
+    //alert(JSON.stringify(tempArr));
+    return tempArr;
+}
+
+//快排
+function _sort(arr){
+    //{r:12},{r:3},{r:45},{r:2}
+    if(arr.length <= 1){return arr}
+    var middleIndex = Math.floor(arr.length/2),
+            middle = arr.splice(middleIndex,1)[0],
+            middleVal = middle['r'];
+    //console.info('tempVal',tempVal);
+    var left = [],
+            right = [];
+    arr.forEach(function(v,i,k){
+        if(v.r < middleVal){
+            left.push(v);
+        }else{
+            right.push(v);
+        }
+    });
+    return _sort(left).concat([middle],_sort(right));
+}
+//参照数组
+function _markSource(arr){
+    if(!isArr(arr)) return;
+    arr.forEach(function(v,i,arr){
+        if(isObj(v)){
+            v.r = i;
+            for(var item in v){
+                if(isArr(v[item])){
+                    _markSource(v[item]);
+                }
+            }
+        }
+    });
+    return arr;
+}
+//当前数组
+function _markCurrent(currentArr,sourceArr){
+    currentArr.forEach(function(v,i,arr){
+        sourceArr.forEach(function(m,k,arr){
+            if(isObj(v)&&isObj(m)){
+                if(v.text == m.text){
+                    v.r = m.r;
+                    for(var item in v){
+                        if(isArr(v[item]) && isArr(m[item])){
+                            _markCurrent(v[item],m[item]);
+                        }
+                    }
+                }
+            }
+        })
+    });
+
+    return currentArr;
+}
+
+//
+function _finalSortArr(arr){
+    if(!isArr(arr) || arr.length < 1){return}
+    arr = _sort(arr);
+    arr.forEach(function(v,i,k){
+        if(isObj(v)){
+            for(var item in v){
+                if(isArr(v[item])){
+                    v[item] = _sort(v[item]);
+                }
+            }
+        }
+    })
+    return arr;
+}
+
+try{
+    localStorage.removeItem('menu');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('roleId');
+}catch(e){}
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{% extends 'leavebase.html' %}
+{% load bootstrap3 %}
+{% block content %}
+            <li class="active"><a href="/leave/apply/" onclick="">申请</a></li>
+            <li><a href="/leave/notes/">申请记录</a></li>
+            <li><a href="/leave/myholiday/">假日详情</a></li>
+            {% if num > 0 %}
+            <li><a href="/leave/myapproval/">审批记录</a></li>
+            {% endif %}
+            {% if user.pro.vacation_manager %}
+            <li><a href="/leave/manager/">管理界面</a></li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h3 class="page-header">请选择申请假期类型</h3>
+          
+          <div class="table-responsive">
+           <ul class="nav nav-pills" role="tablist">
+           {% for type in types %}
+			  <li role="presentation"><a href="/leave/apply/?leavetype={{type.name}}" style="cursor: pointer;">{{type.name}}</a></li>
+           {% endfor %}
+			</ul>
+          </div>
+          
+          <h3 class="sub-header">{{leavetype}}申请</h3>
+			<div class="table-responsive" id="model2" style="width:80%; margin-left:10%;">
+            <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+			    {% csrf_token %}
+			    <p style="line-height:14px; color:red; text-align: center; ">{{error}}</p>
+			    <input type="text" name="leavetype" value="{{leavetype}}" style="display:none;">
+			    <div class='col-md-5'>
+		            <label for="date1" class="col-md-2 control-label" style="width:100px;　position:relitive; right:30px;">开始日期</label>
+	                <div class="input-group date form_date1 col-md-5">
+	                    <input class="form-control"　　id="date1" name="startdate" type="text" value="{{start_date}}" style="width:200px;" required readonly >
+	                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+	                </div>
+			    </div>
+			    <br>
+			    <br>
+<!-- 			    <input type="text" name="desc" value="无" style="display:none;"> -->
+			    {% bootstrap_form form %}
+			    {% buttons %}
+			        <button type="submit" class="btn btn-primary">
+			            {% bootstrap_icon "star" %} 提交
+			        </button>
+			    {% endbuttons %}
+			    </form>
+			</div>
+          </div>
+        </div>
+      </div>
+    </div>
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
+<script type="text/javascript">
+	// $('.form_date1').datetimepicker({
+     //    format: "yyyy-mm-dd",
+	    // autoclose: true,
+	    // minView: "month",
+	    // maxView: "decade",
+	    // todayBtn: true,
+	    // language: 'zh-CN',
+     //    autoclose:true,
+     //    startDate:new Date(),
+	    // pickerPosition: "bottom-left"
+// 	    format: "yyyy-mm-dd",
+// 	    autoclose: true,
+// 	    minView: "month",
+// 	    maxView: "decade",
+// 	    todayBtn: true,
+// 	    language: 'zh-CN',
+//         startDate:new Date(),
+// 	    pickerPosition: "bottom-left"
+//     })
+// });
+
+$(document).ready(function() {
+	$('.form_date1').datetimepicker({
+        format: "yyyy-mm-dd",
+	    autoclose: true,
+	    minView: "month",
+	    maxView: "decade",
+	    todayBtn: true,
+	    language: 'zh-CN',
+        startDate:new Date(),
+	    pickerPosition: "bottom-left"
+	});
+	})
+
+
+</script>
+{% endblock %}

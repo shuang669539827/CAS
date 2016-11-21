@@ -1,0 +1,51 @@
+{% extends "dinnerbase.html"%}
+{% block content%}
+<div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="active"><a class="active;" href="/dinner/" style="font-size:16px;">＋１</a></li>
+            <li><a href="/dinner/orders/" style="font-size:16px;">订单</a></li>
+            <li><a href="/dinner/total/" style="font-size:16px;">统计</a></li>
+          {% if pro.dinner_manager %}
+            <li><a href="/dinner/food/" style="font-size:16px;">管理</a></li>
+          {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h2 class="sub-header" style="font-size:35px;">晚餐列表</h2>
+          {% if now > 1530 %}
+          <h3 style="color:red;">订餐截止时间15:30,系统暂不提供服务.</h3>
+          {% else %}
+          <h3 style="color:red;">{{error}}</h3>
+          {% endif %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="font-size:20px;">编号</th>
+                  <th style="font-size:20px;">晚餐</th>
+                  <th style="font-size:20px;">描述</th>
+                  <th style="font-size:20px;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for food in foods %}
+                <tr>
+                  <td style="line-height:25px; font-size:16px;">{{food.id}}</td>
+                  <td style="line-height:25px; font-size:16px;">{{food.name}}</td>
+                  <td style="line-height:25px; font-size:16px;">{{food.info}}</td>
+                  {% if now > 1530 %}
+                  <td></td>
+                  {% else %}
+                  <td style="line-height:25px; font-size:16px;"><a href="/dinner/orders/?id={{food.id}}" style="text-decoration:none;">预定</a></td>
+                  {% endif %}
+                </tr>
+               {% endfor %}
+               
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock%}
