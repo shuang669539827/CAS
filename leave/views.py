@@ -20,6 +20,7 @@ from xlwt import *
 import StringIO
 import logging
 import datetime
+import time
 import traceback
 import calendar
 import csv
@@ -103,10 +104,13 @@ class ApplyView(View):
 		email_list = [email]
 		if form.is_valid():
 			start_date = request.POST.get('startdate')
-			desc = form.cleaned_data['desc']
+			if not start_date:
+				return HttpResponseRedirect('/leave/apply/?leavetype=%s'%(leavetype))
+
 			d1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
 			if leavetype == '婚假':
-				d2 = d1 + datetime.timedelta(days=10)
+				desc = form.cleaned_data['desc']
+				d2 = d1 + datetime.timedelta(days=9)
 				if upfile:
 					Apply.objects.create(user=user, start_date=d1, end_date=d2
 						, leavetype=type_obj, total_day=10, desc=desc, upfile=upfile)
@@ -141,7 +145,7 @@ class ApplyView(View):
 					info = '产假类型：陪产假15天，备注：%s'%(desc)
 				else:
 					info = '产假类型：产假128天，备注：%s'%(desc)
-				d2 = d1 + datetime.timedelta(days=matertype)
+				d2 = d1 + datetime.timedelta(days=(matertype-1))
 				if upfile:
 					Apply.objects.create(user=user, start_date=d1, end_date=d2
 						, leavetype=type_obj, total_day=matertype, desc=info, upfile=upfile)
@@ -174,8 +178,6 @@ class ApplyView(View):
 					return render(request, 'apply2.html',{'user': user, 'form': form, 'error': '结束日期不能为空'\
 						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype}) 
 				half = request.POST.get('half')
-				# desc = request.POST.get('desc')
-
 				visitor = request.POST.get('visitor')
 				address = request.POST.get('address')
 				note = request.POST.get('note')
@@ -186,6 +188,45 @@ class ApplyView(View):
 					return render(request, 'apply2.html', {'user': user, 'form': form, 'error': '结束日期不能小于开始日期'\
 						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype})
 				Apply.objects.create(user=user, start_date=d1, end_date=d2
+						, leavetype=type_obj, desc=desc, half=int(half))
+				if not email:
+					error = '上级邮箱不存在'
+					return render(request, 'apply2.html', {'user': user, 'form': form, 'error': error
+						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype})
+				content = """
+						<p>申请人：%s</p>
+						<p>请假类型：%s</p>
+						<p>请假时间：%s　- %s</p>
+						<p>请假理由：%s</p>
+						<p>请登陆<a href="http://cas.100credit.cn/leave/myapproval/">CAS系统</a>审批</p>
+						"""%(request.user.first_name, leavetype, str(d1.date()), str(d2.date()), desc)
+				try:
+					send_mail(email_list, 'CAS系统假期申请', content)
+				except smtplib.SMTPRecipientsRefused:
+					return render(request, "apply2.html", {'error': '该邮箱不存在', 'form': form
+						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype})
+				except Exception:
+					errlog.error('请假邮件发送失败：' + traceback.format_exc())
+					return render(request, "apply2.html", {'error': '未知错误请联系管理员', 'form': form
+						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype})
+
+			elif leavetype == '其他':
+				end_date = request.POST.get('enddate')
+				if not end_date:
+					return render(request, 'apply2.html',{'user': user, 'form': form, 'error': '结束日期不能为空'\
+						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype}) 
+				desc = request.POST.get('desc')
+				half = request.POST.get('half')
+				d2 = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+				total_day = (d2-d1).days
+				if total_day < 0:
+					return render(request, 'apply2.html', {'user': user, 'form': form, 'error': '结束日期不能小于开始日期'\
+						, 'start_date': start_date, 'end_date': end_date, 'num': num, 'types': applytype, 'leavetype': leavetype})
+				if int(half) == 0:
+					total_day = total_day + 0.5
+				else:
+					total_day = total_day + 1
+				Apply.objects.create(user=user, start_date=d1, end_date=d2, total_day=total_day
 						, leavetype=type_obj, desc=desc, half=int(half))
 				if not email:
 					error = '上级邮箱不存在'
@@ -354,9 +395,9 @@ def result(request):
 		d1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
 		d2 = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 		leavetype = apply_obj.leavetype.name
-		if leavetype in ['产假', '婚假']:
+		if leavetype in ['产假', '婚假', '其他']:
 			pass
-		elif leavetype in ['病假', '事假', '其他', '调休', '年假', '出差', '外访', '丧假']:
+		elif leavetype in ['病假', '事假', '调休', '年假', '出差', '外访', '丧假']:
 			start_year = d1.year
 			start_month = d1.month
 			start_day = d1.day
@@ -612,7 +653,11 @@ def down(request):
 	obj_id = request.GET.get('obj_id')
 	obj = Apply.objects.get(id=obj_id)
 	fn = obj.upfile.path
-	filename = os.path.split(fn)[1]
+
+	filename = str(os.path.split(fn)[1])
+	_, end = os.path.splitext(filename)
+	now = time.strftime('%Y%m%d',time.localtime())
+	
 	def readFile(fn, buf_size=262144):
 		f = open(fn, "rb")
 		while True:
@@ -624,7 +669,7 @@ def down(request):
 		f.close()
 
 	response = StreamingHttpResponse(readFile(fn),content_type='application/octet-stream') 
-	response['Content-Disposition'] = 'attachment; filename=%s' %filename
+	response['Content-Disposition'] = 'attachment; filename={0}'.format(now+end)
 	return response
 
 
@@ -673,8 +718,6 @@ def write_excel(request):
 				udict['year'] = udict['year'] + obj.total_day
 			if obj.leavetype.name == '事假':
 				udict['work'] = udict['work'] + obj.total_day
-			# if obj.leavetype.name == '加班':
-			# 	udict['add'] = udict['add'] + obj.total_day
 			if obj.leavetype.name == '婚假':
 				udict['marry'] = udict['marry'] + obj.total_day
 			if obj.leavetype.name == '产假':

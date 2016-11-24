@@ -184,3 +184,4 @@ class ServiceTicket(models.Model):
     
     def __unicode__(self):
         return "%s (%s) - %s" % (self.user.username, self.service, self.created)
+

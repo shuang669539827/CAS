@@ -1,3 +1,4 @@
-migrtions/
 .svn/
+*.pyc
+*/migrations/
 
