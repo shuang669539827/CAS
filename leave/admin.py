@@ -17,7 +17,8 @@ class UserHolidayAdmin(admin.ModelAdmin):
 class ApplyAdmin(admin.ModelAdmin):
 	def first_name(self, instance):
 		return str(instance.user.first_name)
-	list_filter = ['user', 'apply_date']
+	list_filter = ['user', 'apply_date', 'result']
+	list_display = ('first_name', 'total_day', 'result', 'apply_date')
 	search_fields = ['user__first_name']
 
 
@@ -26,6 +27,7 @@ class MonthApplyAdmin(admin.ModelAdmin):
 		return str(instance.user.first_name)
 	list_filter = ['user', 'year_month']
 	search_fields = ['user__first_name']
+	list_display = ('first_name', 'year_month', 'apply_day', 'add_day')
 
 
 admin.site.register(Apply, ApplyAdmin)
