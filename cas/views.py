@@ -44,7 +44,7 @@ def index(request):
     projects = Project.objects.all()
     news = News.objects.all()
     menu = Menu.objects.all()
-    return render(request, 'index.html'\
+    return render(request, 'cas-index.html'\
         , {"user": user, "projects": projects, "permissions": permissions\
         , "news": news, "menu": menu})
 
@@ -88,8 +88,8 @@ class LoginView(View):
                 ticket = create_service_ticket(request.user, service)
                 return HttpResponseRedirect(service + '/?ticket=' + ticket)
             else:
-                return render(request, 'login.html', {'service': service})
-        return render(request, 'login.html')
+                return render(request, 'cas-login.html', {'service': service})
+        return render(request, 'cas-login.html')
 
     def post(self, request):
         username = request.POST.get('Username')
@@ -109,7 +109,7 @@ class LoginView(View):
                 error = '账户被冻结'
         else:
             error = '用户名或密码错误'
-        return render(request, 'login.html', {"error": error, "service": service})
+        return render(request, 'cas-login.html', {"error": error, "service": service})
 
 
 def validate(request):
@@ -144,7 +144,7 @@ def proinfo(request):
     '''成员信息'''
     '''在html中判断一下人物的部门,吧任务传给模板,如果是HR给开账号和,入驻员工信息的权限.'''
     user = request.user
-    return render(request, 'proinfo.html', {'user':user})
+    return render(request, 'cas-proinfo.html', {'user':user})
 
 
 @login_required
@@ -175,7 +175,7 @@ def enterinfo(request):
                 try:
                     superior = User.objects.get(email=superior_email)
                 except User.DoesNotExist:
-                    return render(request, 'enterinfo.html', {'form': form, "error":"上级邮箱有误！", 'user':user})
+                    return render(request, 'cas-enterinfo.html', {'form': form, "error":"上级邮箱有误！", 'user':user})
                 if email.split('@')[1] == '100credit.com':
                     username = email.split('@')[0]
                     password = make_password('123', None, 'pbkdf2_sha256')
@@ -188,10 +188,10 @@ def enterinfo(request):
                     except Exception:
                         errlog.error('存储用户错误:' + traceback.format_exc())
                         error = '该邮箱已注册'
-                        return render(request, 'enterinfo.html', {'form': form, "error":error, 'user':user})
+                        return render(request, 'cas-enterinfo.html', {'form': form, "error":error, 'user':user})
                     content = "你已开通CAS账号，用户名:%s，密码:123,登陆地址:cas.100credit.cn"%(str(username))
                 else:
-                    return render(request, 'enterinfo.html', {'form': form, "error":"非百融邮箱", 'user':user})
+                    return render(request, 'cas-enterinfo.html', {'form': form, "error":"非百融邮箱", 'user':user})
                 today = 365 - time.localtime().tm_yday
                 if work_year < 1:
                     year_day = 0
@@ -217,9 +217,9 @@ def enterinfo(request):
                 return HttpResponseRedirect('/prolist/')
             else:
                 form = InfoForm()
-                return render(request, 'enterinfo.html', {'form': form, 'error': '日期格式有误！', 'user':user})
+                return render(request, 'cas-enterinfo.html', {'form': form, 'error': '日期格式有误！', 'user':user})
 
-        return render(request, 'enterinfo.html', {'form': form, 'user':user})
+        return render(request, 'cas-enterinfo.html', {'form': form, 'user':user})
     else:
         raise Http404
 
@@ -233,7 +233,7 @@ def prosearch(request):
             return HttpResponseRedirect('/prolist/')
         num_page = User.objects.filter(first_name__icontains=name)
         user = request.user
-        return render(request, 'prolist.html', {'num_page': num_page, 'user':user, 'name':name})
+        return render(request, 'cas-prolist.html', {'num_page': num_page, 'user':user, 'name':name})
     else:
         raise Http404
 
@@ -251,7 +251,7 @@ def prolist(request):
         except:
             num_page = p.page(1)
         user = request.user
-        return render(request, 'prolist.html', {'num_page':num_page, 'user':user})
+        return render(request, 'cas-prolist.html', {'num_page':num_page, 'user':user})
     else:
         raise Http404
 
@@ -266,7 +266,7 @@ class Alterpro(View):
                 pro = Pro.objects.get(pk=pro_id)
                 form = ProForm(instance=pro, initial={'superior': pro.superior.email})
                 projects = Project.objects.all()
-                return render(request, 'alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user, 'pro': pro})
+                return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user, 'pro': pro})
         else:
             raise Http404
     
@@ -284,7 +284,7 @@ class Alterpro(View):
                     superior = User.objects.get(email=superior_email)
                 except :
                     error = '上级邮箱有误'
-                    return render(request, 'alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user, 'error':error})
+                    return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user, 'error':error})
                 pro.superior = superior
                 pro.save()
                 content = '您好，您的用户信息已被修改，详情请登陆cas.100credit.cn个人信息页面查看，如有问题请联系%s : %s'%(user.first_name, user.email)
@@ -295,7 +295,7 @@ class Alterpro(View):
                 form.save()
                 return HttpResponseRedirect('/prolist/')
 
-            return render(request, 'alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user})
+            return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user})
         else:
             raise Http404
 
@@ -312,11 +312,11 @@ def repasswd(request):
             password1 = request.POST.get('password1')
             password2 = request.POST.get('password2')
             if password1 != password2:
-                return render(request, 'repasswd.html', {'error': '两次密码输入不一致', 'form': form, 'pro': pro})
+                return render(request, 'cas-repasswd.html', {'error': '两次密码输入不一致', 'form': form, 'pro': pro})
             user.set_password(password1)
             user.save()
             return HttpResponseRedirect('/proinfo/')
-    return render(request, 'repasswd.html', {'form': form, 'pro':pro})
+    return render(request, 'cas-repasswd.html', {'form': form, 'pro':pro})
 
 
 @login_required
@@ -328,7 +328,7 @@ def alterinfo(request):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/proinfo/')
-    return render(request, 'alterinfo.html', {'form': form})
+    return render(request, 'cas-alterinfo.html', {'form': form})
 
 
 @login_required
@@ -343,7 +343,7 @@ def userprojectlist(request):
     except:
         num_page = p.page(1)
     user = request.user
-    return render(request, 'userprojectlist.html', {'user': user, 'num_page': num_page})
+    return render(request, 'cas-userprojectlist.html', {'user': user, 'num_page': num_page})
 
 
 @login_required
@@ -357,7 +357,7 @@ def userprojectsearch(request):
     user = request.user
     projects = Project.objects.filter(user=user)
     num_page = UserProject.objects.filter(project__in=projects, user=searchuser)
-    return render(request, 'userprojectlist.html', {'num_page': num_page, 'user':user, 'name': name})
+    return render(request, 'cas-userprojectlist.html', {'num_page': num_page, 'user':user, 'name': name})
 
 
 @login_required
@@ -371,7 +371,7 @@ def userprojectalter(request):
         char = ','.join([projectrole.name for projectrole in projectroles])
         initial = {"project": project, "first_name": first_name, "projectrole": char}
         form = DisRoleForm(initial=initial)
-        return render(request, 'alterrole.html', {'form': form, 'obj_id': obj_id})
+        return render(request, 'cas-alterrole.html', {'form': form, 'obj_id': obj_id})
     if request.method == 'POST':
         form = RoleForm(request.POST)
         if form.is_valid():
@@ -382,12 +382,12 @@ def userprojectalter(request):
                 projectroles = ProjectRole.objects.filter(name__in=projectrole)
             except ProjectRole.DoesNotExist:
                 error = '有不存在的角色'
-                return render(request, 'addrole.html', {'form': form, 'error': error, 'obj_id': obj_id})
+                return render(request, 'cas-addrole.html', {'form': form, 'error': error, 'obj_id': obj_id})
             obj.projectrole = projectroles
             obj.save()
             return HttpResponseRedirect('/userprojectlist/')
         errlog.error('修改项目角色，表单提交有误：' + form.errors.as_json())
-        return render(request, 'addrole.html', {'form': form, 'obj_id': obj_id})
+        return render(request, 'cas-addrole.html', {'form': form, 'obj_id': obj_id})
     
 
 @login_required
@@ -416,12 +416,12 @@ def addrole(request):
                 user = User.objects.get(first_name=first_name)
             except User.DoesNotExist:
                 error = '没有该姓名的用户'
-                return render(request, 'addrole.html', {'form': form, 'error': error, 'roles': name_str})
+                return render(request, 'cas-addrole.html', {'form': form, 'error': error, 'roles': name_str})
             try:
                 obj = ProjectRole.objects.get(name=projectrole)
             except ProjectRole.DoesNotExist:
                 error = '没有该角色'
-                return render(request, 'addrole.html', {'form': form, 'error': error, 'roles': name_str})
+                return render(request, 'cas-addrole.html', {'form': form, 'error': error, 'roles': name_str})
             try:
                 userproject = UserProject.objects.get(user=user, project=project)
             except UserProject.DoesNotExist:
@@ -429,7 +429,7 @@ def addrole(request):
             userproject.projectrole.add(obj)
             userproject.save()
             return HttpResponseRedirect('/userprojectlist/')
-    return render(request, 'addrole.html', {'form': form, 'roles': name_str})
+    return render(request, 'cas-addrole.html', {'form': form, 'roles': name_str})
 
 
 @login_required
@@ -442,8 +442,8 @@ def addprojectrole(request):
             return HttpResponseRedirect('/userproject/add/')
         else:
             form = ProjectRoleForm()
-            return render(request, 'addprojectrole.html', {'form': form, 'error': '已有该角色'})
-    return render(request, 'addprojectrole.html', {'form': form})
+            return render(request, 'cas-addprojectrole.html', {'form': form, 'error': '已有该角色'})
+    return render(request, 'cas-addprojectrole.html', {'form': form})
 
 
 @login_required
@@ -478,14 +478,14 @@ def applyperm(request):
                     """%(user.first_name, str(project.name), str(role.name), str(zone.name))
             send_mail(['cas1@100credit.com', user.pro.superior.email], 'CAS系统项目权限申请', content)
             return HttpResponseRedirect("/proinfo/")
-    return render(request, "applyperm.html", {'form': form, 'user': user})
+    return render(request, "cas-applyperm.html", {'form': form, 'user': user})
 
 
 @login_required
 def applypermlist(request):
     objs = ApplyPerm.objects.filter(status=False)
     user = request.user
-    return render(request, "applypermlist.html", {'user': user, 'objs': objs})
+    return render(request, "cas-applypermlist.html", {'user': user, 'objs': objs})
 
 
 @login_required
@@ -524,14 +524,14 @@ def applypermres(request):
 def get_vercode(request):
     email = request.POST.get('email')
     if not email:
-        return render(request, "re_passwd.html", {'error': '请输入邮箱'})
+        return render(request, "cas-re_passwd.html", {'error': '请输入邮箱'})
     if re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) is None:
-        return render(request, "re_passwd.html", {'error': '邮箱格式错误'})
+        return render(request, "cas-re_passwd.html", {'error': '邮箱格式错误'})
     try:
         user = User.objects.get(email=email)
         name = user.first_name
     except User.DoesNotExist:
-        return render(request, "re_passwd.html", {'error': '没有和该邮箱匹配的用户'})
+        return render(request, "cas-re_passwd.html", {'error': '没有和该邮箱匹配的用户'})
     code = random.randint(1000, 9999)
     vercode = str(code) + (datetime.datetime.now() + datetime.timedelta(minutes=5)).strftime('%Y%m%d%H%M%S')
     user.pro.vercode = vercode
@@ -540,8 +540,8 @@ def get_vercode(request):
     try:
         send_mail([email], 'CAS系统修改密码', content)
     except smtplib.SMTPRecipientsRefused:
-        return render(request, "re_passwd.html", {'error': '该邮箱暂未开通'})
-    return render(request, 're_passwd.html', {'error': '获取成功', 'param':email})
+        return render(request, "cas-re_passwd.html", {'error': '该邮箱暂未开通'})
+    return render(request, 'cas-re_passwd.html', {'error': '获取成功', 'param':email})
 
 
 def re_passwd(request):
@@ -553,22 +553,22 @@ def re_passwd(request):
         try:
             user = User.objects.get(email=email)
         except user.DoesNotExist:
-            return render(request, "re_passwd.html", {'error': '该用户已不存在', 'param':email})
+            return render(request, "cas-re_passwd.html", {'error': '该用户已不存在', 'param':email})
         pro = user.pro
         code = str(pro.vercode)[:4]
         code_time = datetime.datetime.strptime(str(pro.vercode)[4:], "%Y%m%d%H%M%S")
         now = datetime.datetime.now()
         if code != vercode or now > code_time:
-            return render(request, "re_passwd.html", {'error': '验证码无效', 'param':email})
+            return render(request, "cas-re_passwd.html", {'error': '验证码无效', 'param':email})
         if password1 != password2:
-            return render(request, 're_passwd.html', {'error': '两次密码输入不一致', 'param':email})
+            return render(request, 'cas-re_passwd.html', {'error': '两次密码输入不一致', 'param':email})
         user = pro.user
         user.set_password(password1)
         user.save()
         pro.vercode = ''
         pro.save()
         return HttpResponseRedirect('/login/')
-    return render(request, 're_passwd.html')
+    return render(request, 'cas-re_passwd.html')
 
 
 def send_mail(receiver, subject, content):

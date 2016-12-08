@@ -1,4 +1,6 @@
-
+/*
+ *  CAS 100credit
+ */
 
 function submit(){
 	url = '/eat/list/';
@@ -19,4 +21,15 @@ function submit(){
             }
         });
     }
+}
+
+
+function show_apply_modal(modalid){
+    var modal = $(modalid);
+    modal.modal('show');
+    modal.find(".modal-body input[name='contact-name']").val('');
+    modal.find(".modal-body select[name='contact-pos']").val('');
+    modal.find(".modal-body input[name='contact-tel']").val('');
+    modal.find(".modal-body input[name='contact-mobile']").val('');
+    modal.find(".modal-body input[name='contact-mail']").val('');
 }

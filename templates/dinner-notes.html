@@ -1,0 +1,56 @@
+{% extends 'dinnerbase.html'%}
+{% block content%}
+<div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li ><a href="/dinner/" style="font-size:16px;">＋１</a></li>
+            <li ><a href="/dinner/orders/" style="font-size:16px;">订单</a></li>
+            <li><a href="/dinner/total/" style="font-size:16px;">统计</a></li>
+          {% if pro.dinner_manager %}
+            <li><a href="/dinner/food/" style="font-size:16px;">管理</a></li>
+            <li class="active"><a href="/dinner/notes/" style="font-size:16px;">订餐记录查询</a></li>
+          {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h2 class="sub-header" style="font-size:35px;">订单记录</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="font-size:20px;">姓名</th>
+                  <th style="font-size:20px;">部门</th>
+                  <th style="font-size:20px;">日期</th>
+                  <th style="font-size:20px;">食物</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for order in page%}
+                <tr>
+                  <td style="line-height:25px; font-size:16px;">{{ order.pro.user.first_name}}</td>
+                  <td style="line-height:25px; font-size:16px;">{{ order.pro.department.name}}</td>
+                  <th style="line-height:25px; font-size:16px;">{{ order.create_time|date:'Y-m-d'}}</th>
+                  <td style="line-height:25px; font-size:16px;">{{ order.food.name}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% if page.paginator.num_pages > 1 %}
+ <nav>
+  <ul class="pager">
+   {% if page.has_previous %}
+    <li ><a href="/dinner/notes/?page={{page.previous_page_number}}">前一页</a></li>
+   {% else %}
+    <li class="disabled"><a href="#" disabled>前一页</a></li>
+    {% endif %}
+    <li>{{page.number}}/{{page.paginator.num_pages}}</li>
+   {% if page.has_next %}
+    <li><a href="/dinner/notes/?page={{page.next_page_number}}">后一页</a></li>
+   {% else%}
+    <li class="disabled"><a href="#" disabled>后一页</a></li>
+    {%endif%}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

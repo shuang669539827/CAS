@@ -8,14 +8,16 @@
             <li><a href="/leave/myapproval/">审批记录</a></li>
             {% endif %}
             {% if user.pro.vacation_manager %}
-            <li><a href="/leave/manager/">管理界面</a></li>
+            <li><a href="/leave/manager1/">管理界面1</a></li>
+            <li><a href="/leave/manager2/">管理界面2</a></li>
+            <li><a href="/leave/manager3/">管理界面3</a></li>
             {% endif %}
           </ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="">
-        
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" >
+          {% if applying_objs %}
           <h2 class="page-header" style="">待审批</h2>
-          <form action="/leave/notesearch/" method="post">{% csrf_token %}
+<!--           <form action="/leave/notesearch/" method="post">{% csrf_token %}
           <div class="col-lg-6" style="width:20%; position:absolute; left:70%; top:10px;" >
             <div class="input-group">
               <input type="text" class="form-control" placeholder="输入年月(2016-09)" value="{{date}}" name="search">
@@ -24,7 +26,7 @@
               </span>
             </div>
           </div>
-          </form>
+          </form> -->
           
           <div class="table-responsive">
             <table class="table table-striped">
@@ -41,8 +43,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for obj in objs %}
-              {% if not obj.status %}
+              {% for obj in applying_objs %}
                 <tr>
                   <td>{{obj.apply_date | date:"Y-m-d"}}</td>
                   <td>{{obj.leavetype}}</td>
@@ -61,11 +62,11 @@
                   <td></td>
                   {% endif %}
                 </tr>
-              {% endif %}
               {% endfor %}
               </tbody>
             </table>
           </div>
+          {% endif %}
           
           
           
@@ -85,8 +86,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for obj in objs %}
-              {% if obj.status %}
+              {% for obj in page %}
                 <tr>
                   <td>{{obj.apply_date | date:"Y-m-d"}}</td>
                   <td>{{obj.leavetype}}</td>
@@ -112,11 +112,27 @@
                   <td></td>
                   {% endif %}
                 </tr>
-                {% endif %}
              {% endfor %}
               </tbody>
             </table>
           </div>
+          {% if page.paginator.num_pages > 1 %}
+           <nav>
+            <ul class="pager">
+             {% if page.has_previous %}
+              <li ><a href="/leave/notes/?page={{page.previous_page_number}}">前一页</a></li>
+             {% else %}
+              <li class="disabled"><a href="#" disabled>前一页</a></li>
+              {% endif %}
+              <li>{{page.number}}/{{page.paginator.num_pages}}</li>
+             {% if page.has_next %}
+              <li><a href="/leave/notes/?page={{page.next_page_number}}">后一页</a></li>
+             {% else%}
+              <li class="disabled"><a href="#" disabled>后一页</a></li>
+              {%endif%}
+            </ul>
+          </nav>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -17,7 +17,7 @@ from celery.schedules import crontab
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
+SESSION_EXPIRE_AT_BROWSER_CLOSE=True;
 
 
 EMAIL_HOST = '117.121.48.85'

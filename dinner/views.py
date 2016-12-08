@@ -9,6 +9,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse  
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
+from django.core.paginator import Paginator
 
 from .models import  Food, Orders
 from .forms import FoodForm
@@ -32,7 +34,7 @@ def Index(request):
     department = pro.department.name_id
     now = int(time.strftime('%H%M'))
     foods = Food.objects.all()
-    return render(request, 'dinner.html', {"foods": foods, 'pro': pro, 'now': now})
+    return render(request, 'dinner-dinner.html', {"foods": foods, 'pro': pro, 'now': now})
 
 
 class OrderView(View):
@@ -57,7 +59,7 @@ class OrderView(View):
             return HttpResponseRedirect('/dinner/orders/')
         else:
             orders = Orders.objects.filter(create_time=today)
-            return render(request, 'orders.html', {'orders': orders, 'pro': pro})
+            return render(request, 'dinner-orders.html', {'orders': orders, 'pro': pro})
 
 
 class CancelView(View):
@@ -96,7 +98,7 @@ class TotalView(View):
         results['20'] = results['20'].items()
         results['石景山'] = results['石景山'].items()
         items = results.items()
-        return render(request, 'total.html', { "pro": pro, "items": items})
+        return render(request, 'dinner-total.html', { "pro": pro, "items": items})
 
 
 # class TypeView(View):
@@ -169,7 +171,7 @@ class FoodView(View):
     def get(self, request):
         if request.user.pro.user_manger:
             foods = Food.objects.all()
-            return render(request, 'food.html', {'foods': foods})
+            return render(request, 'dinner-food.html', {'foods': foods})
         else:
             raise Http404
 
@@ -189,7 +191,7 @@ class ShowFoodView(View):
             food_id = request.GET.get('food_id')
             food = Food.objects.get(id=food_id)
             form = FoodForm(instance=food)
-            return render(request, 'showfood.html', {'form': form, 'food_id': food_id, 'pro': pro})
+            return render(request, 'dinner-showfood.html', {'form': form, 'food_id': food_id, 'pro': pro})
         else:
             raise Http404
 
@@ -202,7 +204,7 @@ class ShowFoodView(View):
                 form.save()
                 return HttpResponseRedirect('/dinner/food/')
             else:
-                return render(request, 'showfood.html', {'form': form})
+                return render(request, 'dinner-showfood.html', {'form': form})
         else:
             raise Http404
 
@@ -213,7 +215,7 @@ class AddFoodView(View):
         if request.user.pro.user_manger:
             form = FoodForm()
             pro = request.user.pro
-            return render(request, 'addfood.html', {'form': form, 'pro': pro})
+            return render(request, 'dinner-addfood.html', {'form': form, 'pro': pro})
         else:
             raise Http404
 
@@ -226,9 +228,35 @@ class AddFoodView(View):
                 Food.objects.create(name=name, info=info)
                 return HttpResponseRedirect('/dinner/food/')
             else:
-                return render(request, 'addfood.html', {'form': form})
+                return render(request, 'dinner-addfood.html', {'form': form})
         else:
             raise Http404
+
+
+class OrderList(ListView):
+
+    queryset = Orders.objects.all()
+    # context_object_name = 'orders'
+    template_name = 'dinner-notes.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderList, self).get_context_data(**kwargs)
+        user = self.request.user
+        page_num = self.request.GET.get('page')
+        if page_num:
+            page_num = int(page_num)
+        foods = Food.objects.all()
+        objs = Orders.objects.all()
+        p = Paginator(objs, 15)
+        try:
+            page = p.page(int(page_num))
+        except:
+            page = p.page(1)
+        context['pro'] = user.pro
+        context['page'] = page
+        context['foods'] = foods
+        return context
+
 
 
         

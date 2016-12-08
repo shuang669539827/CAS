@@ -1,0 +1,96 @@
+{% extends 'base.html'%}
+{% load bootstrap3 %}
+{% block content %}
+<div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li ><a href="/">主页</a></li>
+            <li  class="active"><a href="/proinfo/">个人信息</a></li>
+          </ul>
+          <span class="navbar-brand" style="float:right;" style="font-family:Microsoft YaHei; color:#FFFFFF; font-size:40px;"><a href="/logout/" style="text-decoration:none; color:#9D9D9D;">退出</a></span>
+          <span class="navbar-brand" style="float:right;" style="font-family:Microsoft YaHei; color:#FFFFFF; font-size:40px;">欢迎使用：{{user.first_name}}</span>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-9">
+          <div class="jumbotron" style="height:90%;">
+
+          <form action="/pro/search/" method="post">{% csrf_token %}
+          <div class="col-lg-6" style="margin-left:55%;">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="输入姓名" value="{{name}}" name="search">
+              <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">Search</button>
+              </span>
+            </div>
+          </div>
+          </form>
+
+          <table class="table">
+            <tr>
+              <td style="width:80%;">姓名</td>
+              <td>操作</td>
+            </tr>
+            {% for user in num_page%}
+            <tr>
+              <td>{{user.first_name}}</td>
+              <td><a  href='/pro/alter/?pro_id={{user.pro.id}}' style="text-decoration:none; cursor:pointer;">编辑</a><!-- &nbsp;&nbsp;&nbsp;<a style="text-decoration:none; cursor:pointer;" onclick="del({{person.id}})">删除</a> --></td>
+            </tr>
+            {% endfor %}
+          </table>
+
+          <div class="btn-group" role="group" aria-label="..." style="position:absolute; left:38%; top:85%;">
+          {% if num_page.has_previous %}
+            <a href="/prolist/?page_num={{ num_page.previous_page_number }}"><button type="button" class="btn btn-default">上一页</button></a>
+          {% else %}
+            <a href="#"><button type="button" class="btn btn-default">上一页</button></a>
+          {% endif %}
+          {% if num_page.number %}
+            <span>{{ num_page.number }}/{{num_page.paginator.num_pages}}</span>
+          {% else %}
+            <span>1/1</span>
+          {% endif %}
+          {% if num_page.has_next %}
+            <a href="/prolist/?page_num={{ num_page.next_page_number }}"><button type="button" class="btn btn-default">下一页</button></a>
+          {% else %}
+            <a href="#"><button type="button" class="btn btn-default">下一页</button></a>
+          {% endif %}
+          </div>
+
+          </div>
+        </div>
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
+          <div class="list-group">
+            <a href="/repasswd/" class="list-group-item">修改密码</a>
+            <a href="/alterinfo/" class="list-group-item">修改个人信息</a>
+            <a href="/applyperm/" class="list-group-item">申请项目权限</a>
+            {% if user.pro.user_manger%}
+            <a href="/prolist/" class="list-group-item">成员信息列表</a>
+            <a href="/enterinfo/" class="list-group-item">入驻员工信息</a>
+            {% endif %}
+            {% if user.pro.add_role_perm %}
+            <a href="/userprojectlist/" class="list-group-item">项目角色关系列表</a>
+            <a href="/userproject/add/" class="list-group-item">添加项目角色关系</a>
+            <a href="/projectrole/add/" class="list-group-item">添加项目角色</a>
+            {% endif %}
+            {% if user.pro.apply_subject_perm%}
+            <a href="/applypermlist/" class="list-group-item">申请权限列表</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+   <!--  <hr> -->
+    </div>
+<script type="text/javascript">
+  function del(id){
+    url = '/account/alter/';
+    var info = confirm('确定要删除吗?');
+    if (info) {
+        $.getJSON(url,{"id":id},function(result){
+            location.reload();
+        });
+    };
+  }
+</script>
+{% endblock %}

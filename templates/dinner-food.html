@@ -1,0 +1,51 @@
+{% extends 'dinnerbase.html'%}
+{% block content %}
+<div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li ><a href="/dinner/" style="font-size:16px;">＋１</a></li>
+            <li><a href="/dinner/orders/" style="font-size:16px;">订单</a></li>
+            <li><a href="/dinner/total/" style="font-size:16px;">统计</a></li>
+            <li class="active"><a href="/dinner/food/" style="font-size:16px;">管理</a></li>
+            <li><a href="/dinner/notes/" style="font-size:16px;">订餐记录查询</a></li>
+          </ul>
+        </div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h2 class="sub-header" style="font-size:35px;">管理</h2>
+          <a  href="/dinner/food/add/" style="text-decoration:none; position:relative; left:94%; bottom:35px; cursor:pointer; font-size:16px;">增加</a>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="font-size:20px;">编号</th>
+                  <th style="font-size:20px;">名称</th>
+                  <th style="font-size:20px;">描述信息</th>
+                  
+                  <th style="font-size:20px;">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for food in foods %}
+                <tr >
+                 <td style="line-height:25px; font-size:16px;">{{food.id}}</td>
+                  <td style="line-height:25px; font-size:16px;">{{food.name}}</td>
+                  <td style="line-height:25px; font-size:16px;">{{food.info}}</td>
+                 
+                  <td style="line-height:25px; font-size:16px;"><a href="/dinner/food/show/?food_id={{ food.id }}" style="text-decoration:none; cursor:pointer;">编辑</a>&nbsp;&nbsp;&nbsp;<a style="text-decoration:none; cursor:pointer;" onclick="cancel({{food.id}})">删除</a></td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+</div>
+<script type="text/javascript">
+  function cancel(food_id){
+    url = '/dinner/food/del/';
+    var info = confirm('确定要删除吗?');
+    if (info) {
+        $.getJSON(url,{"food_id":food_id},function(result){
+            location.reload();
+        });
+    };
+}
+</script>
+{% endblock %}

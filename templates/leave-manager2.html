@@ -1,0 +1,90 @@
+{% extends 'leavebase.html' %}
+{% load bootstrap3 %}
+{% block content %}
+            <li><a href="/leave/apply/">申请</a></li>
+            <li><a href="/leave/notes/">申请记录</a></li>
+            <li><a href="/leave/myholiday/">假日详情</a></li>
+            {% if num > 0 %}
+            <li><a href="/leave/myapproval/">审批记录</a></li>
+            {% endif %}
+            {% if user.pro.vacation_manager %}
+            <li ><a href="/leave/manager1/">管理界面1</a></li>
+            <li class="active"><a href="/leave/manager2/">管理界面2</a></li>
+            <li><a href="/leave/manager3/">管理界面3</a></li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <form action="/leave/managersearch2/" method="post">{% csrf_token %}
+          <div class="col-lg-6" style="width:20%; float: right;  " >
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="输入申请人" value="{{date}}" name="search">
+              <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">查询</button>
+              </span>
+            </div>
+          </div>
+          </form>
+          <h2 class="sub-header">已审批</h2>
+          
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="width:6%;">编号</th>
+                  <th style="width:6%;">申请人</th>
+                  <th style="width:10%;">申请时间</th>
+                  <th style="width:6%;">类型</th>
+                  <th style="width:10%;">开始时间</th>
+                  <th style="width:10%;">结束时间</th>
+                  <th style="width:6%;">总天数</th>
+                  <th style="width:29%;">申请理由</th>
+                  <th style="width:7%;">附件</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for obj in page%}
+                <tr>
+                  <td>{{obj.user.pro.num_id}}</td>
+                  <td>{{obj.user.first_name}}</td>
+                  <td>{{obj.apply_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.leavetype}}</td>
+                  <td>{{obj.start_date | date:'Y-m-d'}}</td>
+                  <td>{{obj.end_date | date:'Y-m-d'}}</td>
+                  {% if obj.total_day %}
+                  <td>{{obj.total_day}}</td>
+                  {% else %}
+                  <td>0</td>
+                  {% endif %}
+                  <td>{{obj.desc}}</td>
+                  {% if obj.upfile %}
+                  <td><a href="/leave/down/?obj_id={{obj.id}}">下载</a></td>
+                  {% else %}
+                  <td></td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if page.paginator.num_pages > 1 %}
+           <nav>
+            <ul class="pager">
+             {% if page.has_previous %}
+              <li ><a href="/leave/manager2/?page={{page.previous_page_number}}">前一页</a></li>
+             {% else %}
+              <li class="disabled"><a href="#" disabled>前一页</a></li>
+              {% endif %}
+              <li>{{page.number}}/{{page.paginator.num_pages}}</li>
+             {% if page.has_next %}
+              <li><a href="/leave/manager2/?page={{page.next_page_number}}">后一页</a></li>
+             {% else%}
+              <li class="disabled"><a href="#" disabled>后一页</a></li>
+              {%endif%}
+            </ul>
+          </nav>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+{% endblock %}

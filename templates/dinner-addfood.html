@@ -1,0 +1,27 @@
+{% extends 'dinnerbase.html'%}
+{% load bootstrap3 %}
+{% block content %}
+<div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li ><a href="/dinner/" style="font-size:16px;">＋１</a></li>
+            <li><a href="/dinner/orders/" style="font-size:16px;">订单</a></li>
+            <li><a href="/dinner/total/" style="font-size:16px;">统计</a></li>
+            <!-- <li><a href="/dinner/type/" onclick="change(this)">分类管理</a></li> -->
+            <li class="active"><a href="/dinner/food/" style="font-size:16px;">管理</a></li>
+            <li><a href="/dinner/notes/" style="font-size:16px;">订餐记录查询</a></li>
+          </ul>
+        </div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h2 class="sub-header" style="font-size:35px;">食物管理</h2>
+          <br>
+<form action="/dinner/food/add/" method="post" class="form">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">
+            {% bootstrap_icon "star" %} Submit
+        </button>
+    {% endbuttons %}
+</form>
+</div>
+{% endblock %}

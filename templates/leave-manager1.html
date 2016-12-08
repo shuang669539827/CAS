@@ -1,0 +1,47 @@
+{% extends 'leavebase.html' %}
+{% load bootstrap3 %}
+{% block content %}
+            <li><a href="/leave/apply/">申请</a></li>
+            <li><a href="/leave/notes/">申请记录</a></li>
+            <li><a href="/leave/myholiday/">假日详情</a></li>
+            {% if num > 0 %}
+            <li><a href="/leave/myapproval/">审批记录</a></li>
+            {% endif %}
+            {% if user.pro.vacation_manager %}
+            <li class="active"><a href="/leave/manager1/">管理界面1</a></li>
+            <li><a href="/leave/manager2/">管理界面2</a></li>
+            <li><a href="/leave/manager3/">管理界面3</a></li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h2 class="sub-header">本月申请记录<a href="/leave/writecsv/" style="text-decoration:none; position:relative; left:75%; font-size:16px;">导出文件</a></h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th width="50%">申请人</th>
+                  <th>总天数</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for obj in month_objs%}
+                {% if obj.apply_day >= 5 %}
+                <tr>
+                  <td  style="color:red;">{{obj.user.first_name}}</td>
+                  <td  style="color:red;">{{obj.apply_day}}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td>{{obj.user.first_name}}</td>
+                  <td>{{obj.apply_day}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

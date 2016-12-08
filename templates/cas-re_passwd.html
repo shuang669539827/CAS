@@ -1,0 +1,49 @@
+{% load bootstrap3%}
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <title>CAS</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/css/login.css"/>
+
+</head>
+<body>
+    <div class="form_content">
+        <div>
+
+            <div class="re_passwd" ng-keyup="myKeyup($event)">
+            <p class="loginForm_errorInfo" id="loginForm_errorInfo" style="text-align:center;">{{error}}</p>
+            <form action="/get_vercode/" method="post">{% csrf_token %}
+                <div class="uName_" id="uName_">
+                    <input  type="text" id="mail" name="email" class="mail" placeholder="请输入您的邮箱"/>
+                    <a class="loginCancle" ><button id="button_get" type="submit">获取验证码</button>
+                </div>
+            </form>
+           
+          <form action="/re_passwd/" method="post">{% csrf_token %}
+                <input type="text" name="param" value="{{param}}" style="display:none;">
+                <div class="uName_" id="uName_">
+                    <input  type="text" id="vercode" name="vercode" class="mail" placeholder="请输入您的验证码" required />
+                </div>
+                <div class="uPwd_" id="uPwd_">
+                    <input type="text" onfocus="this.type = 'password'"  class="mail" id="Password" name="password1"   placeholder="请输入您的密码" required/>
+                </div>
+                <div class="uPwd_" id="uPwd_">
+                    <input type="text" onfocus="this.type = 'password'"  class="mail" id="Password" name="password2"   placeholder="请再次输入您的密码" required/>
+                </div>
+                <div class="btnLogin">
+                    <button class="loginBtn" id="loginBtn" type="submit">提&nbsp;&nbsp;&nbsp;&nbsp;交</button>
+                </div>
+          </form>
+    </div>
+    <footer id="login_footer">
+      <p>Copyright &copy; 2014百融（北京）金融信息服务股份有限公司.All Right Reserved.京ICP备14032774号</p>
+  </footer>
+</div>
+</div>
+</body>
+</html>
