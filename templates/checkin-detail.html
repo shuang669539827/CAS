@@ -1,0 +1,67 @@
+{% extends "checkin-base.html" %}
+{% block title %}{{ record.user.first_name }}考勤详情 {% endblock %}
+{% block content %}
+    <ol class="breadcrumb text-center" style="font-size: large;">
+        <li class="active" >{{ obj.user.first_name }}&nbsp;{{ obj.createDate | date:"Y-m-d  D" }}</li>
+    </ol>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th style="width: 33%">上班时间</th>
+                <th style="width: 33%">下班时间</th>
+                <th>工作时长(小时)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ obj.inTime | date:"H:i"}}</td>
+                <td>{{ obj.outTime | date:"H:i"}}</td>
+                <td>{{ obj.allTime }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th style="width: 33%">是否迟到</th>
+                <th style="width: 33%">是否早退</th>
+                <th>是否订餐</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{% if obj.isLate %}是{% else %}否{% endif %}</td>
+                <td>{% if obj.isEarly %}是{% else %}否{% endif %}</td>
+                <td>{% if obj.isDinner %}是{% else %}否{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th style="width: 33%">是否请假</th>
+                <th style="width: 33%">假期类型</th>
+                <th>全天/半天</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ leaveinfo.0 }}</td>
+                <td>{{ leaveinfo.1 }}</td>
+                <td>{{ leaveinfo.2 }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+
+    });
+</script>
+{% endblock %}

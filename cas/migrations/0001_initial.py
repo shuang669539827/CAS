@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('user', models.CharField(default=b'', max_length=200, verbose_name=b'\xe7\x94\xa8\xe6\x88\xb7', blank=True)),
                 ('project', models.CharField(default=b'', max_length=200, verbose_name=b'\xe9\xa1\xb9\xe7\x9b\xae', blank=True)),
+                ('zone', models.CharField(default=b'', max_length=200, verbose_name=b'\xe5\xa4\xa7\xe5\x8c\xba', blank=True)),
                 ('role', models.CharField(default=b'', max_length=200, verbose_name=b'\xe8\xa7\x92\xe8\x89\xb2', blank=True)),
                 ('create_time', models.DateTimeField(auto_now=True)),
                 ('status', models.BooleanField(default=False)),
@@ -28,7 +29,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u6743\u9650\u7533\u8bf7',
                 'verbose_name_plural': '\u6743\u9650\u7533\u8bf7\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Department',
@@ -42,7 +42,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u90e8\u95e8',
                 'verbose_name_plural': '\u90e8\u95e8\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Menu',
@@ -56,7 +55,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u5bfc\u822a\u83dc\u5355',
                 'verbose_name_plural': '\u5bfc\u822a\u83dc\u5355',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='News',
@@ -69,7 +67,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u65b0\u95fb\u5217\u8868',
                 'verbose_name_plural': '\u65b0\u95fb\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Pro',
@@ -98,7 +95,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u7528\u6237',
                 'verbose_name_plural': '\u7528\u6237\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Project',
@@ -114,7 +110,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u9879\u76ee',
                 'verbose_name_plural': '\u9879\u76ee\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='ProjectRole',
@@ -128,7 +123,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u9879\u76ee\u89d2\u8272',
                 'verbose_name_plural': '\u9879\u76ee\u89d2\u8272',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='ServiceTicket',
@@ -137,11 +131,8 @@ class Migration(migrations.Migration):
                 ('service', models.URLField()),
                 ('ticket', models.CharField(max_length=256)),
                 ('created', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(related_name=b'ticket_user', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(related_name='ticket_user', to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='UserProject',
@@ -149,7 +140,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name_id', models.IntegerField(unique=True, null=True, verbose_name=b'\xe5\x8f\x8c\xe7\xb4\xa2\xe5\xbc\x95', blank=True)),
                 ('project', models.ForeignKey(verbose_name=b'\xe9\xa1\xb9\xe7\x9b\xae', to='cas.Project')),
-                ('projectrole', models.ManyToManyField(to='cas.ProjectRole', null=True, verbose_name=b'\xe8\xa7\x92\xe8\x89\xb2', blank=True)),
+                ('projectrole', models.ManyToManyField(to='cas.ProjectRole', verbose_name=b'\xe8\xa7\x92\xe8\x89\xb2', blank=True)),
                 ('user', models.ForeignKey(verbose_name=b'\xe7\x94\xa8\xe6\x88\xb7', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -157,7 +148,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u9879\u76ee\u89d2\u8272\u5173\u7cfb',
                 'verbose_name_plural': '\u9879\u76ee\u89d2\u8272\u5173\u7cfb\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='UserRole',
@@ -171,7 +161,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u4eba\u7269\u89d2\u8272',
                 'verbose_name_plural': '\u4eba\u7269\u89d2\u8272',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Zone',
@@ -185,36 +174,40 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u533a\u57df',
                 'verbose_name_plural': '\u533a\u57df\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.AddField(
             model_name='pro',
             name='permission',
-            field=models.ManyToManyField(to='cas.Project', null=True, verbose_name=b'\xe8\xae\xbf\xe9\x97\xae\xe9\xa1\xb9\xe7\x9b\xae\xe6\x9d\x83\xe9\x99\x90', blank=True),
-            preserve_default=True,
+            field=models.ManyToManyField(to='cas.Project', verbose_name=b'\xe8\xae\xbf\xe9\x97\xae\xe9\xa1\xb9\xe7\x9b\xae\xe6\x9d\x83\xe9\x99\x90', blank=True),
         ),
         migrations.AddField(
             model_name='pro',
             name='role',
             field=models.ForeignKey(verbose_name=b'\xe8\x81\x8c\xe4\xbd\x8d', blank=True, to='cas.UserRole', null=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='pro',
             name='superior',
-            field=models.ForeignKey(related_name=b'super', verbose_name=b'\xe4\xb8\x8a\xe7\xba\xa7', blank=True, to=settings.AUTH_USER_MODEL, null=True),
-            preserve_default=True,
+            field=models.ForeignKey(related_name='super', verbose_name=b'\xe4\xb8\x8a\xe7\xba\xa7', blank=True, to=settings.AUTH_USER_MODEL, null=True),
         ),
         migrations.AddField(
             model_name='pro',
             name='user',
             field=models.OneToOneField(verbose_name=b'\xe7\x94\xa8\xe6\x88\xb7', to=settings.AUTH_USER_MODEL),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='pro',
             name='zone',
             field=models.ForeignKey(verbose_name=b'\xe5\x8c\xba\xe5\x9f\x9f', blank=True, to='cas.Zone', null=True),
-            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='department',
+            name='permission',
+            field=models.ManyToManyField(to='cas.Project', verbose_name=b'\xe8\xae\xbf\xe9\x97\xae\xe9\xa1\xb9\xe7\x9b\xae\xe6\x9d\x83\xe9\x99\x90', blank=True),
+        ),
+        migrations.AddField(
+            model_name='department',
+            name='user',
+            field=models.ForeignKey(verbose_name=b'\xe9\x83\xa8\xe9\x97\xa8\xe9\xa2\x86\xe5\xaf\xbc\xe4\xba\xba', blank=True, to=settings.AUTH_USER_MODEL, null=True),
         ),
     ]

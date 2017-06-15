@@ -1,0 +1,798 @@
+    .module-list {
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        padding-left: 0;
+    }
+    
+    .module-edit-name {
+        position: absolute;
+        padding-left: 50px;
+        width: 100%;
+        margin-left: 10px;
+        z-index: 4;
+    }
+    
+    .sure {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        vertical-align: middle;
+        margin: 8px 2px 8px 5px;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .module-edit-name .sure .border-icon,
+    .module-edit-name .cancel .border-icon {
+        top: 0;
+        left: 0;
+        font-size: 24px;
+        filter: alpha(opacity=30);
+        -moz-opacity: .3;
+        opacity: .3;
+    }
+    
+    .module-edit-name .box {
+        margin: 9px 0;
+        _margin: 7px 0;
+        padding: 0 0 0 5px;
+        width: 200px;
+        height: 24px;
+        vertical-align: middle;
+        border: 1px solid #3b8cff;
+        border: 1px solid rgba(58, 140, 255, .3);
+        background: #fff;
+        border-radius: 2px;
+    }
+    
+    .module-edit-name .icon {
+        position: absolute;
+        color: #3b8cff;
+    }
+    
+    .module-edit-name .sure .border-icon,
+    .module-edit-name .cancel .border-icon {
+        top: 0;
+        left: 0;
+        font-size: 24px;
+        filter: alpha(opacity=30);
+        -moz-opacity: .3;
+        opacity: .3;
+    }
+    
+    .module-edit-name .icon {
+        position: absolute;
+        color: #3b8cff;
+    }
+    
+    .module-edit-name .sure .checksmall-icon,
+    .module-edit-name .cancel .rename-cancel-icon {
+        position: absolute;
+        top: 6px;
+        left: 5px;
+        font-size: 12px;
+    }
+    
+    .module-edit-name .cancel {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        vertical-align: middle;
+        margin: 8px 0;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .list-view-wrapper {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    
+    .file-name,
+    .file-size {
+        float: left;
+    }
+    
+    .file-name a {
+        color: #666;
+        cursor: pointer;
+        line-height: 43px;
+        display: inline-block;
+    }
+    
+    .file-name a:hover {
+        color: #06c;
+    }
+    
+    .file-name .text {
+        position: relative;
+        left: 43px;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    .icon-delete:before {
+        content: "\e903";
+    }
+    
+    .list-tools {
+        display: inline-block;
+        position: relative;
+        left: 10px;
+    }
+    
+    .list-tools a {
+        border-radius: 0px;
+    }
+    
+    .list-tools .g-button {
+        margin-left: -4px;
+        margin-right: 0px;
+    }
+    
+    .list-tools .g-button:nth-child(1) {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .list-tools .g-button:nth-last-child(1) {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .g-button-right:hover {
+        cursor: pointer;
+    }
+    
+    .list-view-item:hover {
+        background: #daebfe;
+    }
+    
+    .tool-1 {
+        display: inline-block;
+        float: left;
+        position: relative;
+    }
+    
+    .item-first,
+    .module-edit-name {
+        display: none;
+    }
+    
+    .link-item {
+        display: inline-block;
+        color: #fff;
+        font-size: 16px;
+        height: 42px;
+        line-height: 38px;
+        margin: 0 25px;
+        vertical-align: middle;
+        position: relative;
+    }
+    
+    .header-link {
+        width: auto;
+        height: 100%;
+        padding-left: 34px;
+        position: relative;
+        float: left;
+    }
+    
+    .header-link a:hover {
+        opacity: 8;
+    }
+    
+    .header-link span {
+        cursor: pointer;
+    }
+    
+    .no-result-file-download {
+        margin: 0;
+        display: none;
+        text-align: left;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: 100%;
+        min-height: 400px;
+    }
+    
+    .no-result-file-word {
+        font-size: 14px;
+        color: #424e67;
+        margin: 20px 0;
+        font-weight: 200;
+    }
+    
+    .no-result-file-word .up-load {
+        margin: 0 5px;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .up-load {
+        margin: 0 5px;
+        cursor: pointer;
+        position: relative;
+        color: #3b8cff;
+    }
+    
+    .dialog-web-short {
+        height: 44px;
+    }
+    
+    .dialog-web-uploader {
+        overflow: hidden;
+        background-color: #fff;
+        position: absolute;
+        width: 633px;
+        top: auto;
+        bottom: 0px;
+        left: auto;
+        right: 30px;
+        display: none;
+        visibility: visible;
+        z-index: 42;
+        border-top-left-radius: 7px;
+        border-top-right-radius: 7px;
+        border: 1px solid #e2e2e2;
+        box-shadow: 0 0 10px #ccc;
+        margin-bottom: -2px;
+    }
+    
+    .dialog-header {
+        height: 44px;
+        font-size: 16px;
+        line-height: 44px;
+        font-weight: 200;
+    }
+    
+    .dialog-header h3 {
+        line-height: 44px;
+        margin-left: 30px;
+    }
+    
+    .dialog-control {
+        top: 13px;
+        right: 12px;
+        position: absolute;
+        height: 20px;
+    }
+    
+    .dialog-control .icon {
+        text-align: center;
+        line-height: 20px;
+        color: #5f7094;
+        margin: 0 2px;
+    }
+    
+    .dialog-icon {
+        cursor: pointer;
+        height: 20px;
+        width: 20px;
+    }
+    
+    .dialog-close {
+        background-position: -80px 0;
+    }
+    
+    .icon-close:before {
+        content: "\e92b";
+    }
+    
+    .icon-minimize:before {
+        content: "\e92c";
+    }
+    
+    .icon-maximizing:before {
+        content: "\e92d";
+    }
+    
+    .dialog-control .icon:hover {
+        color: #7c8aa8;
+    }
+    
+    .uploader-list {
+        position: relative;
+        overflow: hidden;
+        overflow-y: auto;
+        height: 349px;
+        margin-top: -1px;
+    }
+    
+    .uploader-list-header {
+        overflow: hidden;
+        height: 35px;
+        border-bottom: 2px solid #f2f6fd;
+        border-top: 2px solid #f2f6fd;
+        line-height: 35px;
+        color: #424e67;
+    }
+    
+    .uploader-list-header div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-indent: 10px;
+    }
+    
+    .uploader-list-wrapper .file-name {
+        width: 45%;
+        float: left;
+    }
+    
+    .uploader-list-wrapper .file-size {
+        width: 13%;
+        float: left;
+    }
+    
+    .uploader-list-wrapper .file-path {
+        width: 13%;
+        float: left;
+    }
+    
+    .uploader-list {
+        text-indent: 10px;
+    }
+    
+    .uploader-list .file-path {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-indent: 10px;
+    }
+    
+    .process {
+        background: #e2eeff;
+        height: 100%;
+        position: absolute;
+    }
+    
+    .file-list {
+        position: relative;
+        height: 49px;
+        border-bottom: 1px solid #f2f6fd;
+        line-height: 49px;
+    }
+    
+    .info {
+        position: absolute;
+        width: 100%;
+    }
+    
+    .module-tip {
+        display: none;
+        height: 39px;
+        line-height: 18px;
+        top: 65px;
+        left: 50%;
+        max-height: 37px;
+        background-color: #faf0cd;
+        border: 1px solid #f3e041;
+        border-radius: 4px;
+        color: #666;
+        margin-top: 8px;
+        -moz-box-shadow: 0 0 0 rgba(0, 0, 0, .2);
+        -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, .2);
+        box-shadow: 0 0 0 rgba(0, 0, 0, .2);
+        position: absolute;
+        padding: 0 10px;
+        background: #f9edbe;
+        z-index: 95;
+    }
+    
+    .tip-msg {
+        line-height: 37px;
+        max-width: 450px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: center;
+        text-overflow: ellipsis;
+        max-width: 400px;
+        min-width: 1px;
+    }
+    
+    .historylistmanager-history {
+        height: 16px;
+        line-height: 16px;
+        padding-left: 5px;
+        position: absolute;
+        top: 0;
+        left: 10px;
+        background: #fff;
+        overflow: hidden;
+        white-space: nowrap;
+        display: none;
+    }
+    
+    .historylistmanager-history li {
+        float: left;
+    }
+    
+    .historylistmanager-history a {
+        cursor: pointer;
+    }
+    
+    .historylistmanager-separator,
+    .historylistmanager-separator-gt {
+        color: #c5d8f3;
+        padding: 0 3px
+    }
+    
+    .historylistmanager-separator-gt {
+        padding: 0 5px;
+    }
+    
+    .subscript {
+        background: #3b8cff;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        border-radius: 5px;
+    }
+    
+    .header a {
+        display: block;
+    }
+    
+    html,
+    body {
+        background-color: rgb(239, 244, 248);
+        /*min-height: 600px;*/
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+    }
+    
+    a:hover,
+    a:focus,
+    a:active,
+    a:visited {
+        text-decoration: none;
+    }
+    
+    {
+        text-decoration: none;
+    }
+    
+    ul,
+    li,
+    ol {
+        list-style: none;
+    }
+    
+    .header {
+        height: 62px;
+    }
+    
+    .header dl {
+        margin-top: 13px;
+    }
+    
+    #left-nav {
+        background-color: rgb(239, 244, 248);
+        width: 266px;
+        font-size: 14px;
+    }
+    
+    #left-nav a {
+        color: #424e67;
+        line-height: 38px;
+        height: 38px;
+        padding: 0;
+    }
+    
+    #left-nav a:hover {
+        background-color: rgba(0, 0, 0, 0.0470588);
+    }
+    
+    #layoutMain {
+        border-top: 1px solid #d8dfea;
+        border-left: 1px solid #d8dfea;
+        border-right: 1px solid #d8dfea;
+        margin-left: -1px;
+        top: 62px;
+        left: 194px;
+        bottom: 0px;
+        right: 10px;
+        z-index: 1;
+        background: #fff;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        position: absolute;
+    }
+    /*    .active a {
+        color: #3b8cff;
+    }*/
+    
+    .text {
+        padding-left: 38px;
+    }
+    
+    .header-info {
+        float: right;
+        width: 400px;
+        height: 40px;
+    }
+    
+    .icon-upload {
+        margin-left: 15px;
+        font-size: 16px;
+    }
+    
+    .icon-upload:before {
+        content: "\e915";
+    }
+    
+    .icon {
+        font-family: yunfont!important;
+        speak: none;
+        color: #fff;
+        font-style: normal;
+        font-weight: 400;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale
+    }
+    
+    .upload-text {
+        width: 40px;
+        font-size: 13px;
+        margin-left: 5px;
+    }
+    
+    .blue-btn {
+        position: relative;
+        color: #fff;
+        background-color: rgb(59, 140, 255);
+        border: 1px solid #3b8cff;
+        height: 32px;
+        width: 86px;
+        display: inline-block;
+        border-radius: 4px;
+        float: left;
+        z-index: 1;
+    }
+    
+    .blue-btn span {
+        height: 32px;
+        line-height: 32px;
+    }
+    
+    .module-toolbar {
+        padding: 11px 10px;
+    }
+    
+    .app-user-info {
+        height: 40px;
+        display: inline-block;
+    }
+    
+    .user-name {
+        position: relative;
+        margin-left: 10px;
+        top: -10px;
+    }
+    
+    .g-button:hover {
+        color: #77afff!important;
+    }
+    
+    .g-button {
+        padding-right: 8px;
+        text-decoration: none;
+        height: 32px;
+        line-height: 32px;
+        padding-left: 10px;
+        position: relative;
+        display: inline-block;
+        margin: 0 5px;
+        font-size: 13px;
+        vertical-align: top;
+        white-space: nowrap;
+        border: 1px solid #c0d9fe;
+        outline: 0;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .icon-newfolder:before {
+        content: "\e906";
+    }
+    
+    .g-button em {
+        color: rgb(59, 140, 255);
+    }
+    
+    .icon-download:before {
+        content: "\e907";
+    }
+    
+    .history-list-tips {
+        margin-right: 20px;
+        float: right;
+    }
+    
+    .module-history-list {
+        padding-left: 16px;
+        background-color: #fff;
+        height: 16px;
+        line-height: 16px;
+        margin-bottom: 5px;
+    }
+    
+    .list-cols li {
+        float: left;
+    }
+    
+    .list-view-header {
+        height: 36px;
+        border-bottom: 1px solid #f2f6fd;
+    }
+    
+    .list-view-header ul {
+        height: 36px;
+    }
+    
+    .list-view-item {
+        position: relative;
+        height: 44px;
+        line-height: 44px;
+        border-bottom: 1px solid #f2f6fd;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        background: #FFF;
+    }
+    
+    .list-view-item .file-name {
+        width: 60%;
+    }
+    
+    .list-view-item .file-size {
+        width: 16%;
+    }
+    
+    .file-name,
+    .file-size,
+    .file-path,
+    .file-status {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    
+    .list-view-item .ctime {
+        width: 24%;
+    }
+    
+    .col {
+        line-height: 35px;
+    }
+    
+    .col:hover {
+        background: #f6faff;
+    }
+    
+    .fileicon {
+        cursor: default;
+        display: block;
+        height: 26px;
+        width: 26px;
+        position: absolute;
+        left: 43px;
+        top: 10px;
+    }
+    
+    #left-nav li {
+        cursor: pointer;
+    }
+    
+    #left-nav .active {
+        background-color: rgba(0, 0, 0, 0.0470588);
+        color: rgb(59, 140, 255);
+    }
+    
+    .loading {
+        position: absolute;
+        display: none;
+        width: 200px;
+        left: 50%;
+        margin-left: -100px;
+        margin-top: 150px;
+        z-index: 900;
+    }
+    
+    .loading {
+        width: 100%;
+    }
+    
+    .dialog-confirm {
+        position: absolute;
+        box-shadow: none;
+        overflow: hidden;
+        border-radius: 4px;
+        background: #fff;
+        width: 460px;
+        top: 122.5px;
+        bottom: auto;
+        left: 538.5px;
+        right: auto;
+        display: none;
+        visibility: visible;
+        z-index: 52;
+    }
+    
+    .dialog-confirm .dialog-control {
+        top: 3px;
+    }
+    
+    .dialog .dialog-header {
+        background-color: #f7faff;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-bottom: 1px solid #c4dbfe;
+        height: 44px;
+        line-height: 44px;
+        font-weight: 200;
+    }
+    
+    .dialog .dialog-body {
+        background: #fff;
+        line-height: 24px;
+    }
+    
+    .dialog-confirm .g-button {
+        padding-right: 45px;
+    }
+    
+    .g-button-blue-large {
+        border: 1px solid #3b8cff;
+        background: #3b8cff;
+        color: #255;
+    }
+    
+    .g-button-blue-large .text {
+        color: #fff;
+    }
+    
+    .dialog-footer {
+        padding-bottom: 34px;
+        text-align: center;
+    }
+    
+    .module-canvas {
+        display: none;
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        z-index: 50;
+        opacity: 0.5;
+        width: 100%;
+        height: 100%;
+        background: rgb(14, 13, 13);
+    }
+    
+    .select-text {
+        font-style: normal;
+        cursor: text;
+        font-weight: 200;
+        color: #424e67;
+    }
+    
+    .header .index {
+        right: 150px;
+        float: right;
+        position: relative;
+        top: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }

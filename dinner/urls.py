@@ -1,17 +1,10 @@
-from django.conf.urls import patterns, include, url
-from django.contrib import admin
+from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 
 from .views import TotalView, CancelView, OrderView, FoodView, DelFoodView, ShowFoodView, AddFoodView, Index, OrderList
 
-import time
-
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'Eat.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-    
     url(r'^$', Index),
     url(r'^orders/$', login_required(OrderView.as_view())),
     url(r'^cancel/$', login_required(CancelView.as_view())),

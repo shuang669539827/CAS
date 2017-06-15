@@ -1,17 +1,13 @@
-
 {% extends 'leavebase.html' %}
 {% load bootstrap3 %}
 {% block content %}
             <li class="active"><a href="/leave/apply/" onclick="">申请</a></li>
             <li><a href="/leave/notes/">申请记录</a></li>
             <li><a href="/leave/myholiday/">假日详情</a></li>
-            {% if num > 0 %}
-            <li><a href="/leave/myapproval/">审批记录</a></li>
-            {% endif %}
             {% if user.pro.vacation_manager %}
-            <li><a href="/leave/manager1/">管理界面1</a></li>
-            <li><a href="/leave/manager2/">管理界面2</a></li>
-            <li><a href="/leave/manager3/">管理界面3</a></li>
+            <li><a href="/leave/manager1/">管理界面-申请记录</a></li>
+            <li><a href="/leave/manager2/">管理界面-已审批</a></li>
+            <li><a href="/leave/manager3/">管理界面-待审批</a></li>
             {% endif %}
           </ul>
         </div>
@@ -24,8 +20,6 @@
 
            <ul class="nav nav-pills" role="tablist">
            {% for type in types %}
-			     <!-- <li role="presentation"><a href="/leave/apply/?leavetype={{type.name}}" style="cursor: pointer;">{{type.name}}</a></li> -->
-                 <!-- <button type="button" class="btn btn-success" onclick="show_contact_add_modal()">{{type.name}}</button> -->
             {% if type.name == '外访' %}
             <button type="button" class="btn btn-primary" onclick="show_apply_modal('#apply-modal-visit')">{{type.name}}</button>
             {% elif type.name == '婚假' %}
@@ -112,7 +106,7 @@
                 <h4 class="modal-title"><strong>外访申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" id="applyform1" method="post" class="form" enctype="multipart/form-data">
                     {% csrf_token %}
                     {% if error%}
                     <div class="alert alert-danger" role="alert">{{error}}</div>
@@ -151,6 +145,9 @@
                                 <option value="10" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-visitor" class="control-label">客户名称：</label>
                         <input id="apply-visitor" name="apply_visitor" type="text" class="form-control" placeholder="必填" required>
@@ -161,10 +158,10 @@
                     </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">备注：</label>
-                        <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
+                        <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit1">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -182,7 +179,7 @@
                 <h4 class="modal-title"><strong>病假申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" id="applyform2" class="form" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="病假" style="display:none;">
                     <div class="form-group">
@@ -218,6 +215,9 @@
                                 <option value="10" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">备注：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
@@ -227,7 +227,7 @@
                         <input type="file" id="exampleInputFile" name="apply_file">
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit2">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -247,7 +247,7 @@
                 <h4 class="modal-title"><strong>婚假申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" id="applyform3" class="form" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="婚假" style="display:none;">
                     <div class="form-group">
@@ -267,7 +267,7 @@
                         <input type="file" id="exampleInputFile" name="apply_file">
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit3">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -287,7 +287,7 @@
                 <h4 class="modal-title"><strong>产假申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform4" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="产假" style="display:none;">
                     <div class="form-group">
@@ -315,7 +315,7 @@
                         <input type="file" id="exampleInputFile" name="apply_file">
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit4">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -334,7 +334,7 @@
                 <h4 class="modal-title"><strong>出差申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform5" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="出差" style="display:none;">
                     <div class="form-group">
@@ -370,12 +370,15 @@
                                 <option value="10" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit5">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -395,7 +398,7 @@
                 <h4 class="modal-title"><strong>调休申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform6" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="调休" style="display:none;">
                     <div class="form-group">
@@ -431,12 +434,15 @@
                                 <option value="10" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit6">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -456,7 +462,7 @@
                 <h4 class="modal-title"><strong>加班申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform7" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="加班" style="display:none;">
                     <div class="form-group">
@@ -492,12 +498,15 @@
                                 <option value="10.0" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit7">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -516,7 +525,7 @@
                 <h4 class="modal-title"><strong>年假申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform8" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="年假" style="display:none;">
                     <div class="form-group">
@@ -562,12 +571,15 @@
                                 <option value="15.0" >15</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit8">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -587,7 +599,7 @@
                 <h4 class="modal-title"><strong>其他申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform9" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="其他" style="display:none;">
                     <div class="form-group">
@@ -623,12 +635,15 @@
                                 <option value="10.0" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit9">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -647,7 +662,7 @@
                 <h4 class="modal-title"><strong>事假申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform10" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="事假" style="display:none;">
                     <div class="form-group">
@@ -683,12 +698,15 @@
                                 <option value="10.0" >10</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                        <button type="button" class="btn btn-success" id="applysubmit10">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -708,7 +726,7 @@
                 <h4 class="modal-title"><strong>丧假申请</strong></h4>
             </div>
             <div class="modal-body">
-                <form action="/leave/apply/" method="post" class="form" enctype="multipart/form-data">
+                <form action="/leave/apply/" method="post" class="form" id="applyform11" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="text" name="leavetype" value="丧假" style="display:none;">
                     <div class="form-group">
@@ -730,12 +748,15 @@
                                 <option value="3.0" >3</option>
                         </select>
                     </div>
+                    <div class="form-group" id="mydom">
+
+                    </div>
                     <div class="form-group">
                         <label for="apply-info" class="control-label">申请理由：</label>
                         <textarea id="apply-info" name="apply_info" class="form-control" rows="4" placeholder="必填" placeholder="必填" required></textarea> 
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">提交</button>
+                    <div class="modal-footer" >
+                        <button type="button" class="btn btn-success" id="applysubmit11">提交</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal">关闭</button>
                     </div>
                 </form>
@@ -745,14 +766,400 @@
     </div>
 </div>   <!--  #####通用modal###### -->
 
-
-
-
-<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
-<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
-<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
 <script type="text/javascript">
-$('.form_date').datetimepicker({
+$(document).ready(function () {
+
+    $("select[name=apply_days]").change(function () {
+        if (parseInt($(this).val().split('.')[0]) >= 1 && $(this).val().split('.')[1] == '5') {
+            var objs = $("div[id=mydom]");
+            objs.empty();
+            objs.append('<label for="contact-name" class="control-label" style="color: red;">0.5天的归属：</label>' +
+                        '<select id="apply_days" name="sore" class="form-control" >' +
+                                '<option value="1" >开始日期</option>' +
+                                '<option value="0" >结束日期</option>' +
+                        '</select>');
+        } else {
+            var objs = $("div[id=mydom]");
+            objs.empty();
+        }
+    });
+
+    $('#applysubmit1').click(function () {
+        var data = new FormData($('#applyform1').get(0));
+        var d = {};
+        var json = $('#applyform1').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_visitor = d['apply_visitor'];
+        var apply_address = d['apply_address'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_days && apply_visitor && apply_address && apply_info && start_date){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit2').click(function () {
+        var data = new FormData($('#applyform2').get(0));
+        var d = {};
+        var json = $('#applyform2').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_days && apply_info && start_date){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit3').click(function () {
+        var data = new FormData($('#applyform3').get(0));
+        var d = {};
+        var json = $('#applyform3').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit4').click(function () {
+        var data = new FormData($('#applyform4').get(0));
+        var d = {};
+        var json = $('#applyform4').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var chanjiatype = d['chanjiatype'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (chanjiatype && apply_info && start_date){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit5').click(function () {
+        var data = new FormData($('#applyform5').get(0));
+        var d = {};
+        var json = $('#applyform5').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit6').click(function () {
+        var data = new FormData($('#applyform6').get(0));
+        var d = {};
+        var json = $('#applyform6').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit7').click(function () {
+        var data = new FormData($('#applyform7').get(0));
+        var d = {};
+        var json = $('#applyform7').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit8').click(function () {
+        var data = new FormData($('#applyform8').get(0));
+        var d = {};
+        var json = $('#applyform8').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit9').click(function () {
+        var data = new FormData($('#applyform9').get(0));
+        var d = {};
+        var json = $('#applyform9').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit10').click(function () {
+        var data = new FormData($('#applyform10').get(0));
+        var d = {};
+        var json = $('#applyform10').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('#applysubmit11').click(function () {
+        var data = new FormData($('#applyform11').get(0));
+        var d = {};
+        var json = $('#applyform11').serializeArray();
+        $.each(json, function() {
+            d[this.name] = this.value;
+        });
+        var apply_days = d['apply_days'];
+        var apply_info = d['apply_info'];
+        var start_date = d['start_date'];
+        if (apply_info && start_date && apply_days){
+            loadgif(true);
+            $.ajax({
+                url:"/leave/apply/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                    if (ret.msg == 0){
+                        window.location.href = 'http://192.168.162.108:8005/leave/notes/'
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        }else{
+            bootbox.alert('缺少必填信息');
+        }
+    });
+
+    $('.form_date').datetimepicker({
         language:  'zh-CN',
         weekStart: 1,
         todayBtn:  1,
@@ -762,5 +1169,6 @@ $('.form_date').datetimepicker({
         minView: 2,
         forceParse: 0
     });
+});
 </script>
 {% endblock %}

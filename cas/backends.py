@@ -1,9 +1,5 @@
 from urllib import urlencode, urlopen
-from urlparse import urljoin
 from django.contrib.auth.models import User
-
-import urllib2
-
 
 __all__ = ['CASBackend']
 
@@ -15,7 +11,7 @@ def verify(ticket, service):
     """
     params = {'ticket': ticket, 'service': service}
     url = 'http://127.0.0.1:8001/validate/' + '?' + urlencode(params)
-    page = urlurlopen(url)
+    page = urlopen(url)
     try:
         verified = page.readline().strip()
         if verified == 'yes':
@@ -26,14 +22,12 @@ def verify(ticket, service):
         page.close()
 
 
-
 class CASBackend(object):
-	"""CAS authentication backend"""
+    """CAS authentication backend"""
 
-	def authenticate(self, ticket, service, request):
-		"""Verifies CAS ticket """
-
-		username = verify(ticket, service)
+    def authenticate(self, ticket, service, request):
+        """Verifies CAS ticket """
+        username = verify(ticket, service)
         if not username:
             return None
         try:
@@ -46,7 +40,6 @@ class CASBackend(object):
 
     def get_user(self, user_id):
         """Retrieve the user's entry in the User model if it exists"""
-
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:

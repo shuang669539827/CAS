@@ -1,23 +1,16 @@
-#coding:utf8
-from django.shortcuts import render, render_to_response, get_object_or_404, render_to_response, RequestContext, redirect
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
+# coding:utf8
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse, HttpResponseRedirect, Http404
 from django.views.generic import View
-from datetime import datetime
-from django.core.paginator import Paginator
-from django.template import RequestContext
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse  
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from django.core.paginator import Paginator
 
-from .models import  Food, Orders
+from .models import Food, Orders
 from .forms import FoodForm
 from cas.models import Pro
 
 import time
-import traceback
 import logging
 
 
@@ -25,13 +18,10 @@ import logging
 
 errlog = logging.getLogger('daserr')
 
-# @login_required
-# class IndexView(View):
 
 @login_required
 def Index(request):
     pro = request.user.pro
-    department = pro.department.name_id
     now = int(time.strftime('%H%M'))
     foods = Food.objects.all()
     return render(request, 'dinner-dinner.html', {"foods": foods, 'pro': pro, 'now': now})
@@ -46,7 +36,7 @@ class OrderView(View):
         today = time.strftime("%Y-%m-%d")
         order = Orders.objects.filter(pro=pro, create_time=today)
         if food_id:
-            if int(time.strftime('%H%M')) > 1530:
+            if int(time.strftime('%H%M')) > 1700:
                 return HttpResponseRedirect('/dinner/') 
             if len(order) > 0:
                 foods = Food.objects.all()
@@ -100,71 +90,6 @@ class TotalView(View):
         items = results.items()
         return render(request, 'dinner-total.html', { "pro": pro, "items": items})
 
-
-# class TypeView(View):
-    
-#     def get(self, request):
-#         if request.user.person.person_department.name_id == 1:
-#             types = Type.objects.all()
-#             return render(request, 'type.html', {"types": types})
-#         else:
-#             raise Http404
-        
-
-# class DelTypeView(View):
-
-#     def get(self, request):
-#         type_id = request.GET.get('type_id')
-#         get_object_or_404(Type, pk=type_id).delete()
-#         return JsonResponse({'msg': 1})
-
-
-# class ShowTypeView(View):
-
-#     def get(self, request):
-#         if request.user.pro.user_manger:
-#             type_id = request.GET.get('type_id')
-#             the_type = Type.objects.get(id=type_id)
-#             form = TypeForm(instance=the_type)
-#             return render(request, 'showtype.html', {'form': form, 'type_id': type_id})
-#         else:
-#             raise Http404
-
-#     def post(self, request):
-#         if request.user.pro.user_manger:
-#             type_id = request.POST.get('type_id')
-#             the_type = Type.objects.get(pk=type_id)
-#             form = TypeForm(request.POST, instance=the_type)
-#             if form.is_valid():
-#                 form.save()
-#                 return HttpResponseRedirect('/dinner/type/')
-#             else:
-#                 return render(request, 'showtype.html', {'form': form})
-#         else:
-#             raise Http404
-
-
-# class AddTypeView(View):
-
-#     def get(self, request):
-#         if request.user.pro.user_manger:
-#             form = TypeForm()
-#             return render(request, 'addtype.html', {'form': form})
-#         else:
-#             raise Http404
-
-#     def post(self, request):
-#         if request.user.pro.user_manger:
-#             form = TypeForm(request.POST)
-#             if form.is_valid():
-#                 ch_name = form.cleaned_data['ch_name']
-#                 en_name = form.cleaned_data['en_name']
-#                 Type.objects.create(ch_name=ch_name, en_name=en_name)
-#                 return HttpResponseRedirect('/type/')
-#             else:
-#                 return render(request, 'showtype.html', {'form': form})
-#         else:
-#             raise Http404
 
 class FoodView(View):
     
@@ -228,7 +153,8 @@ class AddFoodView(View):
                 Food.objects.create(name=name, info=info)
                 return HttpResponseRedirect('/dinner/food/')
             else:
-                return render(request, 'dinner-addfood.html', {'form': form})
+                form = FoodForm()
+                return render(request, 'dinner-addfood.html', {'form': form, 'error': '具有该名称的菜品已存在'})
         else:
             raise Http404
 
@@ -256,10 +182,3 @@ class OrderList(ListView):
         context['page'] = page
         context['foods'] = foods
         return context
-
-
-
-        
-            
-
-

@@ -4,74 +4,43 @@
             <li><a href="/leave/apply/">申请</a></li>
             <li><a href="/leave/notes/">申请记录</a></li>
             <li class="active"><a href="/leave/myholiday/">假日详情</a></li>
-            {% if num > 0 %}
-            <li><a href="/leave/myapproval/">审批记录</a></li>
-            {% endif %}
             {% if user.pro.vacation_manager %}
-            <li><a href="/leave/manager1/">管理界面1</a></li>
-            <li><a href="/leave/manager2/">管理界面2</a></li>
-            <li><a href="/leave/manager3/">管理界面3</a></li>
+            <li><a href="/leave/manager1/">管理界面-申请记录</a></li>
+            <li><a href="/leave/manager2/">管理界面-已审批</a></li>
+            <li><a href="/leave/manager3/">管理界面-待审批</a></li>
             {% endif %}
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h2 class="sub-header">假日详情</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>假日</th>
-                  <th>天数</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>年假剩余</td>
-                  <td>{{obj.year_day}}</td>
-                </tr>
-                <tr>
-                  <td>调休剩余</td>
-                  <td>{{obj.overtime_day}}</td>
-                </tr>
-                <tr>
-                  <td>本月申请</td>
-                  <td>{{monthapply_obj.apply_day}}</td>
-                </tr>
-                <tr>
-                  <td>本月加班</td>
-                  <td>{{monthapply_obj.add_day}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          {% if num > 0 %}
-          <h2 class="page-header">下属假日详情</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th style="width:200px;">姓名</th>
-                  <th style="width:200px;">调休</th>
-                  <th style="width:200px;">年假</th>
-                  <th style="width:200px;">本月加班</th>
-                  <th style="width:200px;">本月申请</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for obj in objs %}
-                <tr>
-                  <td>{{obj.0.user.first_name}}</td>
-                  <td>{{obj.0.overtime_day}}</td>
-                  <td>{{obj.0.year_day}}</td>
-                  <td>{{obj.1.add_day}}</td>
-                  <td>{{obj.1.apply_day}}</td>
 
-                </tr>
-              {% endfor %}
-              </tbody>
+            <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 5px; margin-top: 5px">
+                <li role="presentation" {% ifequal show 'my' %}class="active"{% endifequal %}><a href="{% url 'holiday' %}?show=my">我的</a></li>
+                {% if request.user.pro.vacation_manager %}<li role="presentation" {% ifequal show 'all' %}class="active"{% endifequal %}><a href="{% url 'holiday' %}?show=all">全部</a></li>{% endif %}
+            </ul>
+            <table class="table table-hover table-striped" style="margin-top: 3px;">
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>年假(总数)</th>
+{#                        <th>年假(可用余额)</th>#}
+                        <th>调休</th>
+                        <th>本月申请</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in objs %}
+                        <tr>
+                            <td>{{obj.0.user.first_name}}</td>
+                            <td>{{obj.0.year_day}}</td>
+{#                            <td>{{obj.0.can_use_day}}</td>#}
+                            <td>{{obj.0.overtime_day}}</td>
+                            <td>{{obj.1.apply_day}}</td>
+{#                            <td>{{obj.1.add_day}}</td>#}
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
-          </div>
-          {%endif%}
+
         </div>
       </div>
     </div>

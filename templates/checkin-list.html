@@ -1,0 +1,87 @@
+{% extends 'checkin-base.html' %}
+{% load bootstrap3 %}
+{% block title %}每日考勤{% endblock %}
+{% block content %}
+
+    <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 5px; margin-top: 5px">
+        <li role="presentation" {% ifequal type 'self' %}class="active"{% endifequal %}><a href="{% url 'check_list' %}?type=self">我的</a></li>
+        {% if request.user.super.all.count and subordinates %}<li role="presentation" {% ifequal type 'subordinates' %}class="active"{% endifequal %}><a href="{% url 'check_list' %}?type=subordinates">下属</a></li>{% endif %}
+        {% if request.user.pro.department.user.username == request.user.username %}<li role="presentation" {% ifequal type 'department' %}class="active"{% endifequal %}><a href="{% url 'check_list' %}?type=department">部门</a></li>{% endif %}
+    </ul>
+
+    <table class="table table-hover table-striped" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>姓名</th>
+                <th>上班时间</th>
+                <th>下班时间</th>
+                <th>总时长(小时)</th>
+            </tr>
+            <tr>
+                <th><input style="width: 70%;" name="nowdate" id="datetimepicker" data-date-format="yyyy-mm-dd" class="form-control" size="12" type="text" value="{{ nowdate }}" placeholder="时间"></th>
+                <th>
+                    {% if type == 'subordinates' and subordinates.count %}
+                        <select class="form-control"  name="username" style="width: 70%;" >
+                            <option value="" {% ifequal username '' %}selected{% endifequal %}>所有下属</option>
+                            {% for pro in subordinates %}
+                                <option value="{{ pro.user.username }}" {% ifequal username pro.user.username %}selected{% endifequal %}>{{ pro.user.first_name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                    {% if type == 'department' and department.count %}
+                        <select class="form-control"  name="username" style="width: 70%;" >
+                            <option value="" {% ifequal username '' %}selected{% endifequal %}>所有下属</option>
+                            {% for pro in department %}
+                                <option value="{{ pro.user.username }}" {% ifequal username pro.user.username %}selected{% endifequal %}>{{ pro.user.first_name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="mytable">
+            {% for obj in page_obj %}
+                <tr>
+                    <td>{{ obj.createDate | date:"Y-m-d" }}</td>
+                    <td><a href="{{ obj.get_absolute_url }}">{{ obj.user.first_name }}</a></td>
+                    <td>{{ obj.inTime | date:"H:i" }}</td>
+                    <td>{{ obj.outTime | date:"H:i"}}</td>
+                    <td>{{ obj.allTime }} </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div align="center">
+        {% bootstrap_pagination page_obj url=request.path extra=extra_url_param size="small" %}
+    </div>
+
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        $("select[name=username]").change(function () {
+            location.href = "{% url 'check_list' %}?type={{ type }}&nowdate={{ nowdate }}&username=" + $(this).val();
+        });
+
+        $("input[name=nowdate]").change(function () {
+            location.href = "{% url 'check_list' %}?type={{ type }}&username={{ username }}&nowdate=" + $(this).val();
+        });
+
+        $('#datetimepicker').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: true,
+            startView: 2,
+            minView: 2,
+            forceParse: 0
+        });
+    });
+</script>
+{% endblock %}

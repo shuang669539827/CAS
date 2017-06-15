@@ -4,11 +4,13 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
-from .models import UserRole, ProjectRole, Department, Zone, Project, UserProject, Pro, News, Menu, ApplyPerm
+from .models import (UserRole, ProjectRole, Department, Zone,
+                     Project, UserProject, Pro, News, Menu,
+                     ApplyPerm, OutAlarm)
 # Register your models here.
 
 
-@admin.register(UserRole, ProjectRole, Department, Zone, Project, News, Menu, ApplyPerm)
+@admin.register(UserRole, ProjectRole, Department, Zone, Project, News, Menu, ApplyPerm, OutAlarm)
 class CommentAdmin(admin.ModelAdmin):
     pass
 
@@ -17,6 +19,7 @@ class CommentAdmin(admin.ModelAdmin):
 class UserProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'project')
     list_filter = ('project__name',)
+
     def first_name(self, instance):
         return str(instance.user.first_name)
     search_fields = ['user__first_name', 'project__name']
@@ -42,6 +45,5 @@ class CustomUserAdmin(UserAdmin):
         return obj.pro.zone.name
     zone.short_description = u'区域'
 
-	
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)

@@ -1,0 +1,241 @@
+{% extends 'leavebase.html' %}
+{% load bootstrap3 %}
+{% block content %}
+            <li><a href="/leave/apply/">申请</a></li>
+            <li class="active"><a href="/leave/notes/" >申请记录</a></li>
+            <li ><a href="/leave/myholiday/">假日详情</a></li>
+            {% if num > 0 %}
+            <li><a href="/leave/myapproval/">审批记录</a></li>
+            {% endif %}
+            {% if user.pro.vacation_manager %}
+            <li><a href="/leave/manager1/">管理界面-申请记录</a></li>
+            <li><a href="/leave/manager2/">管理界面-已审批</a></li>
+            <li><a href="/leave/manager3/">管理界面-待审批</a></li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" >
+
+            {% ifequal note.user.username request.user.username %}
+                {% if not note.workflowactivity.current_state.is_end_state %}
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#leave-stop-modal">撤销</button>
+                {% endif %}
+            {% endifequal %}
+            {% if note.label == "leave-pro" and note.user.pro.superior.username == request.user.username %}
+                {% for t in transitions %}
+                    {% if t.name == '拒绝' %}
+                        <button type="button" class="btn btn-danger" id="reject" value="{{ t.id }}" data-toggle="modal" data-target="#leave-reject-modal">{{ t.name }}</button>
+                    {% else %}
+                        <button type="button" class="btn btn-success progress-transition"  value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+                    {% endif %}
+                {% endfor %}
+            {% elif note.label == "leave-department" and note.user.pro.department.user.username == request.user.username %}
+                {% for t in transitions %}
+                    {% if t.name == '拒绝' %}
+                        <button type="button" class="btn btn-danger" id="reject" value="{{ t.id }}" data-toggle="modal" data-target="#leave-reject-modal">{{ t.name }}</button>
+                    {% else %}
+                        <button type="button" class="btn btn-success progress-transition"  value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+                    {% endif %}
+                {% endfor %}
+            {% elif note.label == "leave-glc" %}
+                {% for t in transitions %}
+                    {% if t.name == '拒绝' %}
+                        <button type="button" class="btn btn-danger" id="reject" value="{{ t.id }}" data-toggle="modal" data-target="#leave-reject-modal">{{ t.name }}</button>
+                    {% else %}
+                        <button type="button" class="btn btn-success progress-transition"  value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            <table class="table table-bordered table-hover" style="margin-top: 20px;">
+                <tbody>
+                    <tr>
+                        <th scope="row">假期类型</th>
+                        <td>{{ note.leavetype.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">申请人</th>
+                        <td>{{ note.user.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">总天数</th>
+                        <td>{{ note.total_day }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">开始时间</th>
+                        <td>{{ note.start_date | date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">结束时间</th>
+                        <td>{{ note.end_date | date:"Y-m-d" }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">备注</th>
+                        <td>{{ note.desc }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">进度</th>
+                        <td><strong>{{ note.get_current_state.name }}</strong> - {{ note.get_current_state.description }}</td>
+                    </tr>
+                    {% if note.upfile %}
+                        <tr>
+                            <th scope="row">附件</th>
+                            <td><a href="#">{{ note.apply_date | date:"Y-m-d H:i:s" }}&nbsp;&nbsp;{{ note.upfile.filename }}</a></td>
+                        </tr>
+                    {% endif %}
+
+                    {%for obj in task.attachment.all %}
+                    <tr>
+                        <th scope="row">附件</th>
+                        <td><a href="{{ obj.get_absolute_url }}">{{ obj.create_time | date:"Y-m-d H:i:s" }}&nbsp;&nbsp;{{ obj }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table class="table table-bordered table-hover" style="margin-top: 3px;">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>状态</th>
+                        <th style="max-width: 60%">记录</th>
+                        <th>执行人</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in note.workflowactivity.history.all %}
+                        <tr>
+                            <td>{{ h.created_on | date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ h.state.description }}</td>
+                            <td>{{ h.note }}</td>
+                            <td>{{ h.created_by.get_full_name }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="modal fade" id="leave-stop-modal" tabindex="-1" role="dialog" aria-labelledby="leave-stop-modallabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"><strong>撤销原因</strong></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="stopreason" class="control-label"></label>
+                                <textarea id="stopreason" name="stopreason" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-success " id="stop">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="leave-reject-modal" tabindex="-1" role="dialog" aria-labelledby="leave-reject-modallabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"><strong>拒绝原因</strong></h4>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="rejecct-id">
+                            <div class="form-group">
+                                <label for="rejectreason" class="control-label"></label>
+                                <textarea id="rejectreason" name="rejectreason" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-success " id="reject-modal">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+      </div>
+    </div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+
+    $("select[name=task-state]").change(function () {
+        location.href = "{% url 'leave-notes' %}?status=" + $(this).val();
+    });
+
+    $('#reject').click(function () {
+        var rejectid = $(this).val();
+        $("#rejecct-id").val(rejectid);
+    });
+
+    $('#reject-modal').click(function () {
+        var tranid = $("#rejecct-id").val();
+        var reject_reason = $("#rejectreason").val();
+        if (reject_reason) {
+            loadgif(true);
+            $.getJSON("{% url "leave_progress" note.id %}", {transId: tranid, reason: reject_reason}, function (ret) {
+                if (ret.msg == 0) {
+                    location.reload();
+                } else {
+                    loadgif(false);
+                    bootbox.alert(ret.msg);
+                }
+            });
+        } else {
+           bootbox.alert('请输入拒绝原因');
+        }
+
+    });
+
+    $('.progress-transition').click(function () {
+        var btnTrans = $(this);
+        var transId = btnTrans.val();
+        bootbox.confirm('确认执行 <' + btnTrans.text() + '> 吗？', function (result) {
+            if (result) {
+                btnTrans.disable();
+                loadgif(true);
+                $.getJSON("{% url "leave_progress" note.id %}", {transId: transId}, function (ret) {
+                    if (ret.msg == 0) {
+                        btnTrans.enable();
+                        location.reload();
+                    } else {
+                        btnTrans.enable();
+                        loadgif(false);
+                        bootbox.alert(ret.msg);
+                    }
+                });
+            }
+        });
+    });
+
+    $('#stop').click(function () {
+        var reason = $("#stopreason").val();
+        if (reason.split(' ').length-1 != reason.length) {
+            $(this).disable();
+            loadgif(true);
+            $.getJSON("{% url "leave_stop" note.id %}", {reason: reason}, function (ret) {
+                if (ret.msg == 0) {
+                    $(this).enable();
+                    location.reload();
+                } else {
+                    $(this).enable();
+                    loadgif(false);
+                    bootbox.alert(ret.msg);
+                }
+            });
+        } else {
+            bootbox.alert("请填写撤销理由");
+        }
+    });
+
+});
+</script>
+
+{% endblock %}

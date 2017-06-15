@@ -1,0 +1,445 @@
+{% extends "cms-base.html" %}
+{% block title %}合同 - {{ task.name }}{% endblock %}
+{% block content %}
+    <ol class="breadcrumb">
+        <li class="active">合同：{{ task.name }}</li>
+    </ol>
+
+    {% ifequal task.workflowactivity.created_by.username user.username %}
+        {% if task.workflowactivity.current_state.is_start_state %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".edit-contact">编辑</button>
+        {% endif %}
+        {% if not task.workflowactivity.current_state.is_end_state %}
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#add-stop-modal">终止</button>
+            {% if not task.workflowactivity.current_state.is_start_state %}
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#revoke-modal">撤销</button>
+            {% endif %}
+        {% endif %}
+    {% endifequal %}
+
+    {% for t in transitions %}
+        {% if t.label == 'department' %}
+            {% ifequal task.workflowactivity.created_by.pro.department.user.username user.username %}
+                {% if t.name == "退回" %}
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#add-back-modal" id="back-contact" value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+                {% else %}
+                    <button type="button" class="btn btn-success progress-transition"  value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+                {% endif %}
+            {% endifequal %}
+        {% elif t.label == 'start'%}
+        {% else %}
+            {% if t.name == "退回" %}
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#add-back-modal" id="back-contact" value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+            {% else %}
+                {% if task.workflowactivity.current_state.label == 'fwy' %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modify-modal">修改合同文本</button>
+                {% endif %}
+                <button type="button" class="btn btn-success progress-transition"  value="{{ t.id }}" title="{{ t.description }}">{{ t.name }}</button>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#add-comment-modal">记录信息</button>
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <tbody>
+            <tr>
+                <th scope="row">合同编号</th>
+                <td>BR_{{ task.id|add:100000}} </td>
+            </tr>
+            <tr>
+                <th scope="row">合同名称</th>
+                <td>{{ task.name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">甲方</th>
+                <td>{{ task.partyf.name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">乙方</th>
+                <td>{{ task.partys.name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">申请人</th>
+                <td>{{ task.workflowactivity.created_by.first_name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">进度</th>
+                <td><strong>{{ task.get_current_state.name }}</strong> - {{ task.get_current_state.description }}</td>
+            </tr>
+            <tr>
+                <th scope="row">单价(元)</th>
+                <td>{{ task.univalent | default_if_none:0}}</td>
+            </tr>
+            <tr>
+                <th scope="row">总价(元)</th>
+                <td>{{ task.total | default_if_none:0}}</td>
+            </tr>
+            <tr>
+                <th scope="row">描述</th>
+                <td>{{ task.note }}</td>
+            </tr>
+            {%for obj in task.attachment.all %}
+            <tr>
+                <th scope="row">附件</th>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.create_time | date:"Y-m-d H:i:s" }}&nbsp;&nbsp;{{ obj }}</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th>时间</th>
+                <th>状态</th>
+                <th style="max-width: 60%">记录</th>
+                <th>执行人</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in task.workflowactivity.history.all %}
+                <tr>
+                    <td>{{ h.created_on | date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ h.state.description }}</td>
+                    <td>{{ h.note }}</td>
+                    <td>{{ h.created_by.get_full_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="add-comment-modal" tabindex="-1" role="dialog" aria-labelledby="add-comment-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>记录信息</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="comment" class="control-label"></label>
+                        <textarea id="comment" name="comment" class="form-control" rows="8"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="add-comment">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-back-modal" tabindex="-1" role="dialog" aria-labelledby="add-back-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>退回原因</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="backreason" class="control-label"></label>
+                        <textarea id="backreason" name="backreason" class="form-control" rows="8"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="add-back">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-stop-modal" tabindex="-1" role="dialog" aria-labelledby="add-stop-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>终止原因</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="stopreason" class="control-label"></label>
+                        <textarea id="stopreason" name="stopreason" class="form-control" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="add-stop">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade edit-contact" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">编辑：{{ task.name }}</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" class="form" id="contactform" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="contact-name" class="control-label">名称:</label>
+                        <input type="text" class="form-control" id="contact-name" name="contact-name" value="{{ task.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-partyfirst" class="control-label">甲方:</label>
+                        <select class="form-control" name="contact-partyfirst" style="width: 95%;">
+                            {% for obj in partyfirst %}
+                                <option value="{{ obj.id }}" {% if obj.name == task.partyf.name %} selected="selected" {% endif %}>{{ obj.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-name" class="control-label">乙方:</label>
+                        <select class="form-control" name="contact-partysecond" style="width: 95%;">
+                            {% for obj in partysecond %}
+                                <option value="{{ obj.id }}" {% if obj.name == task.partys.name %} selected="selected" {% endif %}>{{ obj.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-univalent" class="control-label">单价(元):</label>
+                        <input type="text" class="form-control" id="contact-univalent" name="contact-univalent" value="{{ task.univalent | default_if_none:0}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-total" class="control-label">总价(元):</label>
+                        <input type="text" class="form-control" id="contact-total" name="contact-total" value="{{ task.total | default_if_none:0}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-note" class="control-label">描述：</label>
+                        <textarea id="contact-note" name="contact-note" class="form-control" rows="4" placeholder="..."  maxlength="500" required>{{ task.note }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-note" class="control-label">变更说明：</label>
+                        <textarea id="new-note" name="new-note" class="form-control" rows="4" placeholder="..."  maxlength="500" required></textarea>
+                    </div>
+                    <div class="form-group" id="myfile">
+                        <label for="attachment">附件</label>
+                        <input type="file" id="attachment" name="attachment" onchange="checkfile(this)">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="addfile">添加附件</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" id="edit-contact">确定</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modify-modal" tabindex="-1" role="dialog" aria-labelledby="modify-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>修改</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" class="form" id="modify_body" enctype="multipart/form-data">{% csrf_token %}
+                        <div class="form-group" >
+                            <label for="modify_note" class="control-label">备注</label>
+                            <textarea id="modify_note" name="modify_note" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="form-group" >
+                            <label for="modify_file">附件</label>
+                            <input type="file" id="modify_file" name="modify_file" onchange="checkfile(this)">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="addmodifyfile">添加附件</button>
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="modify">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="revoke-modal" tabindex="-1" role="dialog" aria-labelledby="revoke-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>撤销</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <textarea id="revoke_note" name="revoke_note" class="form-control" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="revoke">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        $('#revoke').click(function () {
+            var revoke_note = $("#revoke_note").val();
+            loadgif(true);
+            $.getJSON("{% url "revoke" task.id %}", {revoke_note: revoke_note}, function (ret) {
+                if (ret.msg == 0) {
+                    location.reload();
+                } else {
+                    loadgif(false);
+                    bootbox.alert(ret.msg);
+                }
+            });
+        });
+
+        $('#modify').click(function () {
+            var data = new FormData($('#modify_body').get(0));
+            loadgif(true);
+            $.ajax({
+            url:"{% url "modify" task.id %}",
+            type:"post",
+            data:data,
+            enctype: "multipart/form-data",
+            cache: false,
+            processData: false,
+            contentType: false,
+            success:function(ret){
+                    if (ret.msg == 0){
+                        location.reload();
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        });
+
+        $('#add-back').click(function () {
+            var reason = $("#backreason").val();
+            var transId = $("#back-contact").val();
+            if (reason.split(' ').length-1 != reason.length) {
+                loadgif(true);
+                $.getJSON("{% url "progress_transition" task.id %}", {transId: transId, reason: reason}, function (ret) {
+                    if (ret.msg == 0) {
+                        location.reload();
+                    } else {
+                        loadgif(false);
+                        bootbox.alert(ret.msg);
+                    }
+                });
+            } else {
+                bootbox.alert("请填写退回理由");
+            }
+        });
+
+        $('#add-stop').click(function () {
+            var reason = $("#stopreason").val();
+            if (reason.split(' ').length-1 != reason.length) {
+                $(this).disable();
+                loadgif(true);
+                $.getJSON("{% url "force_stop" task.id %}", {reason: reason}, function (ret) {
+                    if (ret.msg == 0) {
+                        $(this).enable();
+                        location.reload();
+                    } else {
+                        $(this).enable();
+                        loadgif(false);
+                        bootbox.alert(ret.msg);
+                    }
+                });
+            } else {
+                bootbox.alert("请填写终止理由");
+            }
+        });
+
+        $('#add-comment').click(function () {
+            var comment = $('#comment').val();
+            if (comment.split(' ').length-1 != comment.length) {
+                $(this).disable();
+                loadgif(true);
+                $.post('{% url "add_comment" task.id %}', {note: comment}, function (ret) {
+                    if (ret.msg == 0) {
+                        $(this).enable();
+                        location.reload();
+                    } else {
+                        $(this).enable();
+                        loadgif(false);
+                        bootbox.alert(ret.msg);
+                    }
+                });
+            } else {
+                bootbox.alert("请填写记录信息");
+            }
+        });
+
+        $('.progress-transition').click(function () {
+            var btnTrans = $(this);
+            var transId = btnTrans.val();
+            bootbox.confirm('确认执行 <' + btnTrans.text() + '> 吗？', function (result) {
+                if (result) {
+                    btnTrans.disable();
+                    loadgif(true);
+                    $.getJSON("{% url "progress_transition" task.id %}", {transId: transId}, function (ret) {
+                        if (ret.msg == 0) {
+                            btnTrans.enable();
+                            location.reload();
+                        } else {
+                            btnTrans.enable();
+                            loadgif(false);
+                            bootbox.alert(ret.msg);
+                        }
+                    });
+                }
+            });
+        });
+
+        $('#edit-contact').click(function () {
+            var name = $('#contact-name').val();
+            var note = $('#contact-note').val();
+            var data = new FormData($('#contactform').get(0));
+            if (name && note){
+                loadgif(true);
+                $.ajax({
+                url:"{% url "progress_transition" task.id %}",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                        if (ret.msg == 0){
+                            location.reload();
+                        } else {
+                            bootbox.alert(ret.msg);
+                            loadgif(false);
+                        }
+                    }
+                });
+            } else {
+                bootbox.alert('缺少必填信息');
+            }
+        });
+
+        $('#addfile').click(function () {
+            var mydom = $("#myfile");
+            mydom.append('<input type="file" id="attachment" name="attachment" onchange="checkfile(this)">')
+        });
+
+        $('#addmodifyfile').click(function () {
+            var mydom = $("#modify_body");
+            mydom.append('<input type="file" id="modify_file" name="modify_file" onchange="checkfile(this)">')
+        });
+
+    });
+</script>
+{% endblock %}

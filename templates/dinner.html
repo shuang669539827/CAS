@@ -12,8 +12,8 @@
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h2 class="sub-header" style="font-size:35px;">晚餐列表</h2>
-          {% if now > 1530 %}
-          <h3 style="color:red;">订餐截止时间15:30,系统暂不提供服务.</h3>
+          {% if now > 1700 %}
+          <h3 style="color:red;">订餐截止时间17:00,系统暂不提供服务.</h3>
           {% else %}
           <h3 style="color:red;">{{error}}</h3>
           {% endif %}
@@ -33,7 +33,7 @@
                   <td style="line-height:25px; font-size:16px;">{{food.id}}</td>
                   <td style="line-height:25px; font-size:16px;">{{food.name}}</td>
                   <td style="line-height:25px; font-size:16px;">{{food.info}}</td>
-                  {% if now > 1530 %}
+                  {% if now > 1700 %}
                   <td></td>
                   {% else %}
                   <td style="line-height:25px; font-size:16px;"><a href="/dinner/orders/?id={{food.id}}" style="text-decoration:none;">预定</a></td>

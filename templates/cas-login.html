@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <title>CAS</title>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
-	<link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
+    <meta name="renderer" content="webkit">
+{#	<link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">#}
 
     <!-- build:css  ../css/login.min.css -->
-    <link rel="stylesheet" type="text/css" href="/static/css/reset.css"/>
+<!--     <link rel="stylesheet" type="text/css" href="/static/css/reset.css"/> -->
     <link rel="stylesheet" type="text/css" href="/static/css/login.css"/>
     <!--endbuild-->
-
+    <!--[if lt IE 9]>
+      <script src="/static/js/html5shiv.min.js"></script>
+      <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
 </head>
 <body ng-controller="loginController">
 <div id="login_content">
@@ -22,6 +26,7 @@
                 <p class="loginForm_errorInfo" id="loginForm_errorInfo" style="text-align:center;">{{error}}</p>
                 {% endif %}
                 <input type="text" name="service" value="{{service}}" style="display:none;">
+                <input type="text" name="next" value="{{next}}" style="display:none;">
                 <div class="uName_" id="uName_">
                     <span class="uName_pic"><img src="/static/images/uname.png"/></span>
                     <input  type="text" id="Username" name="Username" class="userName" placeholder="请输入您的用户名" required />
@@ -29,7 +34,7 @@
                 </div>
                 <div class="uPwd_" id="uPwd_">
                     <span class="uPwd_pic"><img src="/static/images/upwd.png"/></span>
-                    <input type="text" onfocus="this.type = 'password'"  class="userPwd" id="Password" name="Password"   placeholder="请输入您的密码" required/>
+                    <input type="password" onfocus="this.type = 'password'"  class="userPwd" id="Password" name="Password"   placeholder="请输入您的密码" required/>
                     <a class="loginCancle" id="loginCancle2" ng-click="loginCancle1()"><img src="/static/images/eye.png"></a>
                 </div>
                 <div class="btnLogin">
@@ -45,6 +50,42 @@
 	</footer>
 </div>
 <script>
+    var c=window.screen.width;
+    if(c!=720){
+        if(c>720){
+            var prt=0.7;
+        }else{
+            var prt=c/480;
+        }
+    }else{
+        var prt=0.5;
+    }
+    document.write('<meta name="viewport" content="width=device-width, initial-scale='+prt+', maximum-scale='+prt+', minimum-scale='+prt+'" />');
+    //判断是否为谷歌及火狐浏览器
+    function browserRedirect() {
+        var sUserAgent = navigator.userAgent.toLowerCase();
+        var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+        var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+        var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+        var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+        var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+        var bIsAndroid = sUserAgent.match(/android/i) == "android";
+        var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+        var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+        document.writeln("您的浏览设备为：");
+        if (bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
+            document.writeln("phone");
+        } else {
+//            var isChrome = !!window.chrome && !!window.chrome.webstore;
+//            var isFirefox = sUserAgent.indexOf("firefox") == -1 ? false : true;
+            var isbrowser = navigator.userAgent.indexOf("Chrome") == -1 && navigator.userAgent.indexOf("Firefox") == -1 ? true : false;
+            if (isbrowser){
+                alert("本系统推荐使用Chrome或Firefox浏览器！")
+            }
+        }
+    }
+    browserRedirect();
+
 function isArr(o){
     return Object.prototype.toString.call(o) === '[object Array]';
 }
@@ -184,7 +225,7 @@ function _finalSortArr(arr){
                 }
             }
         }
-    })
+    });
     return arr;
 }
 

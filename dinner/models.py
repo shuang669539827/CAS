@@ -1,25 +1,7 @@
-#coding:utf-8
+# coding:utf-8
 from django.db import models
-from django.contrib.auth.models import User
-from datetime import datetime
 from cas.models import Pro
 import os
-
-
-
-# class Type(models.Model):
-#     """docstring for Type"""
-#     ch_name = models.CharField(max_length=200, blank=False, null=False, unique=True, verbose_name='中文名称')
-#     en_name = models.CharField(max_length=200, blank=False, null=False, unique=True, verbose_name='英文名称')
-#     create_time = models.DateField(auto_now_add=True)
-
-#     class Meta:
-#        verbose_name = '类型列表'
-#        verbose_name_plural = '类型列表'
-#        ordering = ["-create_time"]
-
-#     def __unicode__(self):
-#         return u'%s' % os.path.basename(self.ch_name)
 
 
 class Food(models.Model):
@@ -28,9 +10,9 @@ class Food(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-       verbose_name = '食物列表'
-       verbose_name_plural = '食物列表'
-       ordering = ["-create_time"]
+        ordering = ["-id"]
+        verbose_name = '食物列表'
+        verbose_name_plural = '食物列表'
 
     def __unicode__(self):
         return u'%s' % os.path.basename(self.name)

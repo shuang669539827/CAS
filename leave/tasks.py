@@ -1,51 +1,46 @@
-#!/usr/bin/python
-#-*- coding:utf-8 -*-
-from __future__ import absolute_import
+# -*- coding:utf-8 -*-
+from __future__ import absolute_import, division
 import datetime
+import math
 
 from celery import current_app as app
-from leave.models import MonthApply, UserHoliday
-from cas.models import Pro
-from django.contrib.auth.models import User
+from celery.utils.log import get_task_logger
+
+from leave.models import UserHoliday
 
 
-# month_num = 0
-# year_num = 0
-
-@app.task(name='task_month')
-def month():
-	year = datetime.datetime.now().year
-	month = datetime.datetime.now().month
-	if month < 10:
-		year_month = str(year) + '0' + str(month)
-	else:
-		year_month = str(year) + str(month)
-	users = User.objects.all()
-	for user in users:
-		try:
-			MonthApply.objects.get(user=user, year_month=year_month)
-		except MonthApply.DoesNotExist:
-			MonthApply.objects.create(user=user, year_month=year_month)
-		
+logger = get_task_logger(__name__)
 
 
-@app.task(name='task_year')
-def year():
-	objs = Pro.objects.all()
-	for obj in objs:
-		obj.work_year = obj.work_year + 1
-		obj.save()
-	users = User.objects.exclude(username='cas')
-	for user in users:
-		holiday_obj = UserHoliday.objects.get(user=user)
-		if user.pro.work_year < 1:
-			holiday_obj.year_day = 0
-		elif user.pro.work_year < 10:
-			holiday_obj.year_day = 5
-		elif user.pro.work_year < 20:
-			holiday_obj.year_day = 10
-		else:
-			holiday_obj.year_day = 15
-		holiday_obj.save()
+@app.task(name='celerymail.flash_annual', autoretry_for=(Exception,),
+          max_retries=3, default_retry_delay=60, rate_limit='100/m')
+def flash_annual():
+    logger.info('celerymail.flash_annual')
+    now = datetime.date.today()
+    for obj in UserHoliday.objects.all():
+        in_time = obj.user.pro.in_time
+        if not in_time:
+            logger.info(obj.user.first_name + 'has no in_time')
+            continue
+        if now.year == in_time.year:
+            work_days = (now - in_time).days
+        else:
+            work_days = datetime.datetime.now().timetuple()[7]
 
+        if obj.user.pro.work_year < 1:
+            can_use_day = 0.0
+        elif obj.user.pro.work_year < 10:
+            can_use_day = round((work_days/365) * 5, 1)
+        elif obj.user.pro.work_year < 20:
+            can_use_day = round((work_days/365) * 10, 1)
+        else:
+            can_use_day = round((work_days/365) * 15, 1)
 
+        fractional, integer = math.modf(can_use_day)
+        if 0 < fractional < 0.4:
+            obj.can_use_day = integer
+        elif 0.4 <= fractional < 0.8:
+            obj.can_use_day = integer + 0.5
+        else:
+            obj.can_use_day = integer + 1
+        obj.save()

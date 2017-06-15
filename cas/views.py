@@ -1,40 +1,78 @@
-#coding:utf8
+# coding:utf8
 from __future__ import unicode_literals, division
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse, StreamingHttpResponse
-from django.views.generic import View
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.core.paginator import Paginator
-from django.views.decorators.csrf import  csrf_exempt
-from django.utils.decorators import method_decorator
-from django.core.mail import EmailMessage
 
-from email.mime.text import MIMEText
-from email.header import Header
+import datetime
+import logging
+import os
+import random
+import re
+import smtplib
+import traceback
+import math
+import json
+
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect, JsonResponse, Http404, StreamingHttpResponse
+from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
 
 from leave.models import UserHoliday, MonthApply
-from .forms import InfoForm, PasswdForm, ApplyPermForm\
-, ProForm, MyForm, RoleForm, DisRoleForm, ProjectRoleForm
-from .models import ServiceTicket, Pro, Project, UserProject, ProjectRole, News, Menu, ApplyPerm, Zone
+from .forms import (InfoForm, PasswdForm, ApplyPermForm, ApplyPermFormPost,
+                    ProForm, MyForm, RoleForm, DisRoleForm, ProjectRoleForm)
+from .models import (ServiceTicket, Pro, Project, UserProject, ProjectRole, News,
+                     Menu, ApplyPerm, Zone, Department, OutAlarm)
 from .utils import create_service_ticket
 
-import os
-import traceback
-import smtplib
-import re
-import random
-import time
-import datetime
-import django
-import logging
-
+from celerymail import send_html_mail
 
 
 errlog = logging.getLogger('daserr')
+
+
+def searchuser(request):
+    name = request.GET.get('name')
+    user_list = User.objects.filter(first_name__icontains=name)
+    result = {}
+    try:
+        for user in user_list:
+            mydict = {}
+            name = user.first_name
+            email = user.email
+            phone = user.pro.phone
+            department = user.pro.department.name
+            mydict.update({'name': name, 'email': email, 'phone': phone, 'department': department})
+            result.update(mydict)
+    except Exception:
+        result = {'msg': '查询失败'}
+        errlog.error('查询个人失败：'+ traceback.format_exc())
+    
+    return JsonResponse(result)
+
+
+def searchdepartment(request):
+    name = request.GET.get('name')
+    department = Department.objects.filter(name__icontains=name)
+    result = {}
+    try:
+        for de in department:
+            mydict = {}
+            name = de.user.first_name
+            email = de.user.email
+            phone = de.user.pro.phone
+            department = de.user.pro.department.name
+            mydict.update({'name': name, 'email': email, 'phone': phone, 'department': department})
+            result.update(mydict)
+    except:
+        errlog.error('查询部门失败：'+ traceback.format_exc())
+        result = {'msg': '查询失败'}
+    return JsonResponse(result)
 
 
 @login_required
@@ -44,16 +82,17 @@ def index(request):
     projects = Project.objects.all()
     news = News.objects.all()
     menu = Menu.objects.all()
-    return render(request, 'cas-index.html'\
-        , {"user": user, "projects": projects, "permissions": permissions\
-        , "news": news, "menu": menu})
+    return render(request, 'cas-index.html', {"user": user, "projects": projects,
+                                              "permissions": permissions, "news": news,
+                                              "menu": menu})
 
 
 @login_required
 def docs(request):
     filename = request.GET.get('filename')
-    basedir = os.getcwd() + '/static/pdf/'+ filename
-    def file_iterator(file_name, chunk_size=512):
+    basedir = os.getcwd() + '/static/pdf/' + filename
+
+    def file_iterator(chunk_size=512):
         with open(basedir) as f:
             while True:
                 c = f.read(chunk_size)
@@ -61,7 +100,7 @@ def docs(request):
                     yield c
                 else:
                     break
-    response = StreamingHttpResponse(file_iterator(filename))
+    response = StreamingHttpResponse(file_iterator())
     response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment;filename="{0}"'.format(filename)
     return response
@@ -74,29 +113,33 @@ class LoginView(View):
         return super(LoginView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        service = request.GET.get('service')
+        service = request.GET.get('service', '')
+        forward = request.GET.get('forward', '')
+        next = request.GET.get('next', '')
         if request.user.is_authenticated():
             user_id = request.user.id
             user_obj = User.objects.get(pk=user_id)
             if service:
                 ticket = create_service_ticket(user_obj, service)
-                return redirect(service + '/?ticket=' + ticket)
+                return redirect(service + '/?ticket=' + ticket + '&forward=' + forward)
             else:
                 return HttpResponseRedirect('/index/')
         elif service:
             if request.user.is_authenticated():
                 ticket = create_service_ticket(request.user, service)
-                return HttpResponseRedirect(service + '/?ticket=' + ticket)
+                return HttpResponseRedirect(service + '/?ticket=' + ticket + '&forward=' + forward)
             else:
                 return render(request, 'cas-login.html', {'service': service})
+        elif next:
+            return render(request, 'cas-login.html', {'next': next})
         return render(request, 'cas-login.html')
 
     def post(self, request):
         username = request.POST.get('Username')
         password = request.POST.get('Password')
         service = request.POST.get('service')
+        next = request.POST.get('next')
         user = authenticate(username=username, password=password)
-        error = ''
         if user is not None:
             if user.is_active:
                 if service:
@@ -104,6 +147,8 @@ class LoginView(View):
                     return redirect(service + '/?ticket=' + ticket)
                 else:
                     auth_login(request, user)
+                    if next:
+                        return HttpResponseRedirect(next)
                     return HttpResponseRedirect('/')
             else:
                 error = '账户被冻结'
@@ -113,7 +158,7 @@ class LoginView(View):
 
 
 def validate(request):
-    ticket = request.GET.get('ticket')
+    ticket = request.GET.get('ticket', '')
     if ticket is not None:
         try:
             ticket_obj = ServiceTicket.objects.get(ticket=ticket)
@@ -121,18 +166,19 @@ def validate(request):
             service = ticket_obj.service
             project = Project.objects.get(url=service)
             try:
-                userproject = UserProject.objects.get(user=user,project=project)
+                userproject = UserProject.objects.get(user=user, project=project)
                 role = userproject.projectrole.all()[0]
             except Exception:
                 role = ProjectRole.objects.get(name_id=1)
             ticket_obj.delete()
-            return JsonResponse({'status':'success', 'email':user.email, 'name':user.first_name\
-                , 'user_id':user.id, 'username':user.username, 'pro_id':user.pro.id, 'zone':user.pro.zone.name\
-                , 'zone_id':user.pro.zone.id, 'role':role.name, 'role_id':role.id})
+            return JsonResponse({'status': 'success', 'email': user.email, 'name': user.first_name,
+                                 'user_id': user.id, 'username': user.username, 'pro_id': user.pro.id,
+                                 'zone': user.pro.zone.name, 'zone_id': user.pro.zone.id, 'role': role.name,
+                                 'role_id': role.id})
         except ServiceTicket.DoesNotExist:
-            return JsonResponse({'status':'faile', 'msg':'ticket is out date'})
-    return JsonResponse({'status':'faile', 'msg':'no ticket'})
-    
+            return JsonResponse({'status': 'faile', 'msg': 'ticket is out date'})
+    return JsonResponse({'status': 'faile', 'msg': 'no ticket'})
+
 
 def logout(request):
     auth_logout(request)
@@ -141,15 +187,15 @@ def logout(request):
 
 @login_required
 def proinfo(request):
-    '''成员信息'''
-    '''在html中判断一下人物的部门,吧任务传给模板,如果是HR给开账号和,入驻员工信息的权限.'''
+    """成员信息"""
+    '''在html中判断一下人物的部门,如果是HR给开账号和,入驻员工信息的权限.'''
     user = request.user
-    return render(request, 'cas-proinfo.html', {'user':user})
+    return render(request, 'cas-proinfo.html', {'user': user})
 
 
 @login_required
 def enterinfo(request):
-    '''入驻成员信息'''
+    """入驻成员信息"""
     if request.user.pro.user_manger:
         form = InfoForm()
         user = request.user
@@ -172,35 +218,57 @@ def enterinfo(request):
                 birth = form.cleaned_data['birth']
                 birthadd = form.cleaned_data['birthadd']
                 work_year = form.cleaned_data['work_year']
+
                 try:
-                    superior = User.objects.get(email=superior_email)
-                except User.DoesNotExist:
+                    entryDate = int(in_time.strftime("%j"))
+                except Exception:
+                    form = InfoForm()
+                    return render(request, 'cas-enterinfo.html', {'form': form, 'error': '日期格式有误！', 'user': user})
+
+                try:
+                    superior = User.objects.filter(email=superior_email, username=superior_email.split("@")[0])[0]
+                except:
                     return render(request, 'cas-enterinfo.html', {'form': form, "error":"上级邮箱有误！", 'user':user})
                 if email.split('@')[1] == '100credit.com':
                     username = email.split('@')[0]
                     password = make_password('123', None, 'pbkdf2_sha256')
                     try:
-                        user = User.objects.create(username=username, password=password\
-                            , first_name=name, email=email)
-                        Pro.objects.create(user=user, sex=sex, id_num=id_num, birth=birth, num_id=num_id\
-                            , birthadd=birthadd, floor=floor, department=department, superior=superior\
-                            , zone=zone, role=role, work_year=work_year, qq=qq, phone=phone, in_time=in_time)
+                        user = User.objects.create(username=username, password=password,
+                                                   first_name=name, email=email)
+                        Pro.objects.create(user=user, sex=sex, id_num=id_num, birth=birth, num_id=num_id,
+                                           birthadd=birthadd, floor=floor, department=department, superior=superior,
+                                           zone=zone, role=role, work_year=work_year, qq=qq, phone=phone, in_time=in_time)
                     except Exception:
                         errlog.error('存储用户错误:' + traceback.format_exc())
                         error = '该邮箱已注册'
-                        return render(request, 'cas-enterinfo.html', {'form': form, "error":error, 'user':user})
+                        return render(request, 'cas-enterinfo.html', {'form': form, "error": error, 'user': user})
                     content = "你已开通CAS账号，用户名:%s，密码:123,登陆地址:cas.100credit.cn"%(str(username))
+
                 else:
-                    return render(request, 'cas-enterinfo.html', {'form': form, "error":"非百融邮箱", 'user':user})
-                today = 365 - time.localtime().tm_yday
+                    return render(request, 'cas-enterinfo.html', {'form': form, "error": "非百融邮箱", 'user':user})
+
+                today = 365 - entryDate
+
                 if work_year < 1:
                     year_day = 0
                 elif work_year < 10:
-                    year_day = round((today/365)*5)
+                    year_day = round((today/365)*5, 1)
                 elif work_year < 20:
-                    year_day = round((today/365)*10)
+                    year_day = round((today/365)*10, 1)
                 else:
-                    year_day = round((today/365)*15)
+                    year_day = round((today/365)*15, 1)
+
+                year_day_tuple = math.modf(year_day)
+                decimalPart = year_day_tuple[0]
+                intPart = year_day_tuple[1]
+
+                if 0 < decimalPart < 0.4:
+                    year_day = intPart
+                elif 0.4 <= decimalPart < 0.8:
+                    year_day = intPart + 0.5
+                elif 0.8 <= decimalPart < 1:
+                    year_day = intPart + 1
+
                 UserHoliday.objects.create(user=user, year_day=year_day)
                 year = datetime.datetime.now().year
                 month = datetime.datetime.now().month
@@ -226,7 +294,7 @@ def enterinfo(request):
 
 @login_required
 def prosearch(request):
-    '''搜索用户'''
+    """搜索用户"""
     if request.user.pro.user_manger:
         name = request.POST.get('search')
         if not name:
@@ -240,69 +308,86 @@ def prosearch(request):
 
 @login_required
 def prolist(request):
-    '''成员列表'''
+    """成员列表"""
     if request.user.pro.user_manger:
         page_num = request.GET.get('page_num')
         userobjs = User.objects.exclude(username='admin')
         p = Paginator(userobjs, 15)
-        user = request.user
         try:
             num_page = p.page(int(page_num))
         except:
             num_page = p.page(1)
         user = request.user
-        return render(request, 'cas-prolist.html', {'num_page':num_page, 'user':user})
+        return render(request, 'cas-prolist.html', {'num_page': num_page, 'user': user})
     else:
         raise Http404
 
 
 class Alterpro(View):
-    '''修改成员信息'''
-    def get(self, request):
+    """修改成员信息"""
+    def get(self, request, pro_id):
         if request.user.pro.user_manger:
             user = request.user
-            pro_id = request.GET.get('pro_id')
+
             if pro_id:
                 pro = Pro.objects.get(pk=pro_id)
-                form = ProForm(instance=pro, initial={'superior': pro.superior.email})
+                superemail = pro.superior.email if pro.superior else ''
+                form = ProForm(instance=pro, initial={'superior': superemail, "status": pro.user.is_active})
                 projects = Project.objects.all()
-                return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user, 'pro': pro})
+                return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id,
+                                                             'projects': projects, 'user': user, 'pro': pro})
+            else:
+                raise Http404
         else:
             raise Http404
     
-    def post(self, request):
+    def post(self, request, pro_id):
         if request.user.pro.user_manger:
             user = request.user
-            pro_id = request.POST.get('pro_id')
             pro = Pro.objects.get(pk=pro_id)
             sender_to = pro.user.email
             form = ProForm(request.POST, instance=pro)
             projects = Project.objects.all()
             if form.is_valid():
+                status = form.cleaned_data['status']
                 superior_email = form.cleaned_data['superior']
                 try:
-                    superior = User.objects.get(email=superior_email)
-                except :
+                    superior = User.objects.filter(email=superior_email, username=superior_email.split("@")[0])[0]
+                except IndexError:
                     error = '上级邮箱有误'
-                    return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user, 'error':error})
+                    return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id,
+                                                                 'projects': projects, 'user': user,
+                                                                 'error': error})
                 pro.superior = superior
                 pro.save()
                 content = '您好，您的用户信息已被修改，详情请登陆cas.100credit.cn个人信息页面查看，如有问题请联系%s : %s'%(user.first_name, user.email)
-                try:
-                    send_mail([sender_to], 'CAS系统修改用户信息', content)
-                except Exception:
-                    errlog.error(traceback.format_exc())
+                send_mail([sender_to], "CAS系统修改用户信息", content)
                 form.save()
+                if not status:
+                    pro.user.is_active = False
+                    pro.user.save()
+                    mail_list = OutAlarm.objects.all().first().mail.split(',') if OutAlarm.objects.all().first() else []
+                    if pro.department.bp:
+                        mail_list.append(pro.department.bp.email)
+                    mail_list.append(pro.superior.email)
+                    mail_list.append(pro.department.user.email)
+                    send_mail(mail_list, "离职人员信息", '<p>运维部,行政部大家好</p>\
+                                                       <p>因员工离职，烦请注销VPN,SVN,CRM等相关权限。从相关微信、qq群组删除该员工。</p>\
+                                                       <p>部门： %s</p>\
+                                                       <p>姓名： %s</p>\
+                                                       <p>邮箱： %s</p>\
+                                                       ' % (pro.department.name, pro.user.first_name, pro.user.email))
                 return HttpResponseRedirect('/prolist/')
 
-            return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id, 'projects': projects, 'user':user})
+            return render(request, 'cas-alterpro.html', {'form': form, 'pro_id': pro_id,
+                                                         'projects': projects, 'user': user})
         else:
             raise Http404
 
 
 @login_required
 def repasswd(request):
-    '''修改密码'''
+    """修改密码"""
     pro = request.user.pro
     form = PasswdForm()
     if request.method == 'POST':
@@ -374,8 +459,8 @@ def userprojectalter(request):
         return render(request, 'cas-alterrole.html', {'form': form, 'obj_id': obj_id})
     if request.method == 'POST':
         form = RoleForm(request.POST)
+        obj_id = request.POST.get("obj_id")
         if form.is_valid():
-            obj_id = request.POST.get("obj_id")
             obj = UserProject.objects.get(pk=obj_id)
             projectrole = form.cleaned_data["projectrole"].split(',')
             try:
@@ -393,7 +478,13 @@ def userprojectalter(request):
 @login_required
 def addrole(request):
     user = request.user
-    project = Project.objects.get(user=user)
+
+    try:
+        project = Project.objects.get(user=user)
+    except Project.DoesNotExist:
+        error = '当前登录用户没有所属项目！'
+        return render(request, 'cas-addrole.html', {'form': RoleForm(), 'error': error, 'roles': ''})
+
     form = RoleForm(initial={'project': project.name})
     projectroles = ProjectRole.objects.all()
     name_str = ''
@@ -451,7 +542,7 @@ def userprojectdel(request):
     obj_id = request.GET.get('obj_id')
     try:
         UserProject.objects.get(pk=obj_id).delete()
-    except Exception, e:
+    except Exception:
         errlog.error('删除用户角色有误：' + traceback.format_exc())
         return JsonResponse({'code': 0})
     return JsonResponse({'code': 1})
@@ -459,11 +550,13 @@ def userprojectdel(request):
 
 @login_required
 def applyperm(request):
-    form = ApplyPermForm()
+
     user = request.user
+    form = ApplyPermForm(user.pro.department.id)
+
     if request.method == 'POST':
         user = request.user
-        form = ApplyPermForm(request.POST)
+        form = ApplyPermFormPost(request.POST)
         if form.is_valid():
             project = form.cleaned_data["project"]
             role = form.cleaned_data["role"]
@@ -475,8 +568,9 @@ def applyperm(request):
                     <p>申请角色：%s</p>
                     <p>区域：%s</p>
                     <p><a href="http://cas.100credit.cn/">CAS系统</a></p>
+                    <p>请上级领导在该邮件的基础上回复是否同意申请</p>
                     """%(user.first_name, str(project.name), str(role.name), str(zone.name))
-            send_mail(['cas1@100credit.com', user.pro.superior.email], 'CAS系统项目权限申请', content)
+            send_mail(['cas1@100credit.com', user.pro.superior.email, user.email], 'CAS系统项目权限申请', content)
             return HttpResponseRedirect("/proinfo/")
     return render(request, "cas-applyperm.html", {'form': form, 'user': user})
 
@@ -561,8 +655,7 @@ def re_passwd(request):
         if code != vercode or now > code_time:
             return render(request, "cas-re_passwd.html", {'error': '验证码无效', 'param':email})
         if password1 != password2:
-            return render(request, 'cas-re_passwd.html', {'error': '两次密码输入不一致', 'param':email})
-        user = pro.user
+            return render(request, 'cas-re_passwd.html', {'error': '两次密码输入不一致', 'param': email})
         user.set_password(password1)
         user.save()
         pro.vercode = ''
@@ -571,24 +664,37 @@ def re_passwd(request):
     return render(request, 'cas-re_passwd.html')
 
 
-def send_mail(receiver, subject, content):
-    status = 0
-    for i in range(5):
-        try:
-            msg = EmailMessage(subject, content, 'cas@100credit.com', receiver)
-            msg.content_subtype = "html"  
-            msg.send()
-            status = 1
-        except smtplib.SMTPRecipientsRefused:
-            user = User.objects.get(email=receiver[0])
-            content = user.first_name + ":" + user.email + ",申请人邮箱有误，请告知修改."
-            msg = EmailMessage("CAS系统假期申请,申请人邮箱错误", content, 'cas@100credit.com', ['lei.xu@100credit.com', 'cas@100credit.com'])
-            msg.content_subtype = "html"  
-            msg.send()
-            status = 1
-        except Exception:
-            time.sleep(0.2)
-        if status == 1:
-            break 
-    else:
-        return None
+def send_mail(receiver, subject, content, filepath=None):
+    return send_html_mail(subject, content, receiver, filepath=filepath)
+
+
+def radar(request):
+    try:
+        pro = Project.objects.get(name='雷达')
+
+        res, role, zone = [], {}, {}
+        for obj in Pro.objects.all():
+            dic = {'userId': obj.user.id, 'userName': obj.user.username, 'status': obj.user.is_active,
+                   'realName': obj.user.first_name, 'email': obj.user.email}
+            try:
+                dic['superiorId'] = obj.superior.id
+            except AttributeError:
+                dic['superiorId'] = ''
+            try:
+                dic['zoneId'] = obj.zone.id
+            except AttributeError:
+                dic['zoneId'] = ''
+            ups = UserProject.objects.filter(project=pro, user=obj.user).first()
+            if ups:
+                dic['roleId'] = ','.join([str(o[0]) for o in ups.projectrole.values_list('id')])
+            else:
+                dic['roleId'] = ''
+            res.append(dic)
+        for r in ProjectRole.objects.all():
+            role[str(r.id)] = r.name
+        for z in Zone.objects.all():
+            zone[str(z.id)] = z.name
+        return JsonResponse({"cas": res, "role": role, "zone": zone, "code": 0})
+    except Exception:
+        print traceback.format_exc()
+        return JsonResponse({"code": 500, "msg": "系统异常"})

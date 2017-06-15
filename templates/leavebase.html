@@ -1,28 +1,31 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="/static/images/favicon.ico">
-    <title>leave</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="description" content="CMS">
+    <meta name="author" content="100credit">
+    <link rel="icon" href="{% static "images/logo.ico" %}">
+    <title>请假</title>
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/style.css" %}" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
     <link href="/static/css/dashboard.css" rel="stylesheet">
-    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen"> 
+    <script src="{% static "js/jquery.min.js" %}"></script>
+    <script src="{% static "js/bootbox.min.js" %}"></script>
+{#    <script src="{% static "js/modal.js" %}"></script>#}
+    <script src="{% static "js/base.js" %}"></script>
     <script type="text/javascript" src="/static/js/ie-emulation-modes-warning.js"></script>
-    <script type="text/javascript" src="/static/js/jquery-1.8.3.min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
-    <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.fr.js" charset="UTF-8"></script>
-    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/holder.min.js"></script>
-    <script src="/static/js/ie10-viewport-bug-workaround.js"></script>
-    <script src="/static/js/base.js"></script>
-
-  </head>
+    <!--[if lt IE 9]>
+      <script src="/static/js/html5shiv.min.js"></script>
+      <script src="/static/js/respond.min.js"></script>
+    <![endif]-->
+</head>
   <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
@@ -50,6 +53,7 @@
           <ul class="nav nav-sidebar">
           {% block content%}
           {% endblock %}
-
+    <div id="loading"></div>
+    {% block js %}{% endblock %}
   </body>
 </html>

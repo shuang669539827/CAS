@@ -57,3 +57,23 @@ footer {
     width: 50%; /* 6 columns */
   }
 }
+/**
+*待办事项移动端
+*/
+.dropdown{
+  top: 7px;
+}
+.open>.dropdown-menu{
+  max-height: 340px;
+  max-width: 300px;
+  overflow: auto;
+}
+@media screen and (max-width: 767px) {
+  .navbar-nav .open .dropdown-menu{
+    position: fixed;
+    width: 100%;
+    max-width: none;
+    top: 58px;
+    background-color: #414141;
+  }
+}

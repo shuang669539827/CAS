@@ -4,13 +4,13 @@
           <li><a href="/leave/apply/">申请</a></li>
             <li><a href="/leave/notes/">申请记录</a></li>
             <li><a href="/leave/myholiday/">假日详情</a></li>
-            {% if num > 0 %}
-            <li class="active"><a href="/leave/myapproval/">审批记录</a></li>
-            {% endif %}
+{#            {% if num > 0 %}#}
+{#            <li class="active"><a href="/leave/myapproval/">审批记录</a></li>#}
+{#            {% endif %}#}
             {% if user.pro.vacation_manager %}
-            <li><a href="/leave/manager1/">管理界面1</a></li>
-            <li><a href="/leave/manager2/">管理界面2</a></li>
-            <li><a href="/leave/manager3/">管理界面3</a></li>
+            <li><a href="/leave/manager1/">管理界面-申请记录</a></li>
+            <li><a href="/leave/manager2/">管理界面-已审批</a></li>
+            <li><a href="/leave/manager3/">管理界面-待审批</a></li>
             {% endif %}
           </ul>
         </div>
@@ -43,7 +43,13 @@
                   <td>{{obj.start_date | date:'Y-m-d'}}</td>
                   <td>{{obj.end_date | date:'Y-m-d'}}</td>
                   <td>{{obj.desc}}</td>
-                  <td><a id="reslink" href="/leave/result/?res=1&obj_id={{obj.id}}" style="text-decoration:none;"><button type="button" class="btn btn-success" onclick="this.disabled = true;" style="height:20px; line-height:5px;">同意</button></a><a id="reslink" href="/leave/result/?res=0&obj_id={{obj.id}}" style="text-decoration:none; margin-left:10px;"><button type="button" style="height:20px; line-height:5px;" class="btn btn-danger" onclick="this.disabled = true;">拒绝</button></a></td>
+
+                  <td><a id="reslink" href="/leave/result/?res=1&obj_id={{obj.id}}" style="text-decoration:none;" onclick="clckimg(this); loadgif(true);" style="height:20px; line-height:5px;">同意</a><a id="reslink" href="/leave/result/?res=0&obj_id={{obj.id}}" style="text-decoration:none; margin-left:10px;" onclick="clckimg(this); loadgif(true);">拒绝</a></td>
+                  <!-- <td>
+                    <a href="" id='agree' name="{{obj.id}}">同意</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="" id='reject' name="{{obj.id}}">拒绝</a>
+                  </td> -->
+                  
+
                   {% if obj.upfile %}
                   <td><a href="/leave/down/?obj_id={{obj.id}}" style="text-decoration:none;">下载</a></td>
                   {% else %}
@@ -123,4 +129,70 @@
         </div>
       </div>
     </div>
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        // $('#agree').click(function () {
+        //     var obj_id = $(this).attr("name");
+        //     var res = '1';
+        //     loadgif(true);
+        //     $.getJSON("/leave/result/", {obj_id:obj_id, res:res}, function (ret) {
+        //         if (ret.msg == 0) {
+        //             // window.location.href = '/leave/myapproval/';
+        //             location.reload();
+        //         } 
+        //     });
+            
+        // });
+
+        // $('#reject').click(function () {
+        //     var obj_id = $(this).attr("name");
+        //     var res = '0';
+        //     loadgif(true);
+        //     $.getJSON("/leave/result/", {obj_id:obj_id, res:res}, function (ret) {
+        //         if (ret.msg == 0) {
+        //             location.reload();
+        //         } 
+        //     });
+        // });
+
+        // $('#upfile').click(function () {
+        //     loading(true);
+        //     var data = new FormData($('#fileform').get(0));
+        //     $.ajax({
+        //         url:"/checker/upfile/",
+        //         type:"post",
+        //         data:data,
+        //         enctype: "multipart/form-data",
+        //         cache: false,
+        //         processData: false,
+        //         contentType: false,
+        //         success:function(ret){
+        //             if (ret.msg == 0){
+        //                 location.reload();
+        //             } else {
+        //                 bootbox.alert(ret.msg);
+        //                 loading(false);
+        //             }
+        //         }
+        //     });
+        // });
+
+        // $('.gethead').click(function () {
+        //     var fileid = $(this).attr("name");
+        //     var mydom = $('#mydom');
+        //     mydom.attr('name', fileid);
+        //     $.getJSON("", {fileid: fileid}, function (ret) {
+        //         var heads = ret.heads;
+        //         mydom.empty();
+        //         for(var i = 0; i < heads.length; i++) {
+        //             var head = heads[i];
+        //             mydom.append('<div class="form-group"><label for="'+head+'" class="control-label">'+head+':</label><select id="'+head+'" name="field" class="form-control" >'+opt+'</select></div>');
+        //         }
+        //     });
+        // });
+    });
+</script>
 {% endblock %}

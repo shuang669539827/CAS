@@ -16,6 +16,9 @@
           <br>
 <form action="/dinner/food/add/" method="post" class="form">
     {% csrf_token %}
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
     {% bootstrap_form form %}
     {% buttons %}
         <button type="submit" class="btn btn-primary">

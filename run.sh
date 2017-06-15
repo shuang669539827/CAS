@@ -1,1 +1,2 @@
-nohup  /opt/www/dts/bin/celery worker -A single_sign --loglevel=info --beat  -c1 > celery.txt & 
+nohup celery -A single_sign worker -E -l info > celery.txt &
+#nohup celery -A single_sign beat > /dev/null &

@@ -4,18 +4,15 @@
             <li><a href="/leave/apply/">申请</a></li>
             <li><a href="/leave/notes/">申请记录</a></li>
             <li><a href="/leave/myholiday/">假日详情</a></li>
-            {% if num > 0 %}
-            <li><a href="/leave/myapproval/">审批记录</a></li>
-            {% endif %}
             {% if user.pro.vacation_manager %}
-            <li class="active"><a href="/leave/manager1/">管理界面1</a></li>
-            <li><a href="/leave/manager2/">管理界面2</a></li>
-            <li><a href="/leave/manager3/">管理界面3</a></li>
+            <li class="active"><a href="/leave/manager1/">管理界面-申请记录</a></li>
+            <li><a href="/leave/manager2/">管理界面-已审批</a></li>
+            <li><a href="/leave/manager3/">管理界面-待审批</a></li>
             {% endif %}
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h2 class="sub-header">本月申请记录<a href="/leave/writecsv/" style="text-decoration:none; position:relative; left:75%; font-size:16px;">导出文件</a></h2>
+          <h2 class="sub-header">本月申请记录<a href="/leave/writecsv/" style="text-decoration:none;float:right;font-size:16px;">导出文件</a></h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>

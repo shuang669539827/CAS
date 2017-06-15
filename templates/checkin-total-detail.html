@@ -1,0 +1,193 @@
+{% extends "checkin-base.html" %}
+{% block title %}{{ record.user.first_name }} 月考勤统计 {% endblock %}
+{% block content %}
+    <ol class="breadcrumb text-center" style="font-size: large;">
+        <li class="active" >{{ obj.user.first_name }}&nbsp;{{ obj.createDate | cut:"-01"}}</li>
+    </ol>
+
+    {% if request.user.username == obj.user.pro.superior.username and not obj.score %}
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#score-modal">打分</button>
+    {% endif %}
+    <table class="table table-bordered table-hover" style="margin-top: 7px;">
+        <thead>
+            <tr>
+                <th style="width: 33%">出勤天数</th>
+                <th style="width: 33%">总工作时长(小时)</th>
+                <th>平均工作时长(小时)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ obj.workDay }}</td>
+                <td>{{ obj.totalTime }}</td>
+                <td>{{ obj.avgTime }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th style="width: 25%">迟到次数</th>
+                <th style="width: 25%">早退次数</th>
+                <th style="width: 25%">打卡缺失次数</th>
+                <th>订餐次数</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ obj.lateInTimes | default_if_none:'0' }}</td>
+                <td>{{ obj.earlyOutTimes | default_if_none:'0' }}</td>
+                <th>{{ obj.PunchOutTimes | default_if_none:'0' }}</th>
+                <td>{{ obj.dinnerTimes | default_if_none:'0' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th style="width: 50%">加班时长(分钟) 每天工作超过9.5小时的部分计入</th>
+                <th>平均加班时长(分钟) 加班时长/出勤天数</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ obj.addWorkTime | default_if_none:'0' }}</td>
+                <td>{{ obj.avgAddWorkTime | default_if_none:'0' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover" style="margin-top: 3px;">
+        <thead>
+            <tr>
+                <th>加班(天)</th>
+                <th>外仿(天)</th>
+                <th>出差(天)</th>
+                <th>病假(天)</th>
+                <th>调休(天)</th>
+                <th>年假(天)</th>
+                <th>事假(天)</th>
+                <th>婚假(天)</th>
+                <th>产假(天)</th>
+                <th>丧假(天)</th>
+                <th>其他(天)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>{{ leave.0 }}</th>
+                <th>{{ leave.1 }}</th>
+                <th>{{ leave.2 }}</th>
+                <th>{{ leave.3 }}</th>
+                <th>{{ leave.4 }}</th>
+                <th>{{ leave.5 }}</th>
+                <th>{{ leave.6 }}</th>
+                <th>{{ leave.7 }}</th>
+                <th>{{ leave.8 }}</th>
+                <th>{{ leave.9 }}</th>
+                <th>{{ leave.10 }}</th>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if projects %}
+        <table class="table table-bordered table-hover" style="margin-top: 3px;">
+            <thead>
+                <tr>
+                    <th>项目</th>
+                    <th>BUG</th>
+                    <th>功能</th>
+                    <th>任务</th>
+                    <th>线上缺陷</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pro in projects %}
+                    <tr>
+                        <td>{{ pro.project }}</td>
+                        <td>{{ pro.1 }}</td>
+                        <td>{{ pro.2 }}</td>
+                        <td>{{ pro.3 }}</td>
+                        <td>{{ pro.4 }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td>合计</td>
+                    <td>{{ obj.bug }}</td>
+                    <td>{{ obj.function }}</td>
+                    <td>{{ obj.task }}</td>
+                    <td>{{ obj.defect }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if obj.score %}
+        <table class="table table-bordered table-hover" style="margin-top: 3px;">
+            <thead>
+                <tr>
+                    <th>分数</th>
+                    <th>评价</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ obj.score }}</td>
+                    <td>{{ obj.comment }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="modal fade" id="score-modal" tabindex="-1" role="dialog" aria-labelledby="score-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>打分</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="score" class="control-label">分数：</label>
+                        <input type="radio" name="score" id="score" value="A" checked>A&nbsp;&nbsp;
+                        <input type="radio" name="score" id="score" value="B+">B+&nbsp;&nbsp;
+                        <input type="radio" name="score" id="score" value="B">B&nbsp;&nbsp;
+                        <input type="radio" name="score" id="score" value="C+">C+&nbsp;&nbsp;
+                        <input type="radio" name="score" id="score" value="C">C&nbsp;&nbsp;
+                    </div>
+                    <div class="form-group">
+                        <label for="comment" class="control-label">评语：</label>
+                        <textarea id="comment" name="comment" class="form-control" rows="8"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="add-score">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        $('#add-score').click(function () {
+            var score = $("#score").val();
+            var comment = $("#comment").val();
+            loadgif(true);
+            $.getJSON("{% url "grade" obj.id %}", {score: score, comment: comment}, function (ret) {
+                if (ret.code == 0) {
+                    location.reload();
+                } else {
+                    loadgif(false);
+                    bootbox.alert(ret.msg);
+                }
+            });
+        });
+
+    });
+</script>
+{% endblock %}

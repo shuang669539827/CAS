@@ -1,0 +1,319 @@
+{% extends 'cms-base.html' %}
+{% load bootstrap3 %}
+{% block title %}合同列表{% endblock %}
+{% block content %}
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".contact">新建合同</button>
+
+    <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 5px; margin-top: 5px">
+        <li role="presentation" {% ifequal show 'self' %}class="active"{% endifequal %}><a href="{% url 'task_list' %}?show=self">我的合同</a></li>
+        {% if request.user.pro.can_watch %}<li role="presentation" {% ifequal show 'all' %}class="active"{% endifequal %}><a href="{% url 'task_list' %}?show=all">所有合同</a></li>{% endif %}
+    </ul>
+
+    <table class="table table-hover table-striped" style="margin-top: 3px;">
+        {% ifequal show 'self' %}
+            <select class="form-control" style="width: 10%;" name="task-state">
+                <option value="doing" {% ifequal my 'doing' %}selected{% endifequal %}>待审批</option>
+                <option value="did" {% ifequal my 'did' %}selected{% endifequal %}>已审批</option>
+            </select>
+        {% endifequal %}
+        {% ifequal show 'all' %}
+            <select class="form-control" style="width: 10%;" name="task-all-state">
+                <option value="doing" {% ifequal state 'doing' %}selected{% endifequal %}>在途</option>
+                <option value="did" {% ifequal state 'did' %}selected{% endifequal %}>审批完成</option>
+                <option value="filing" {% ifequal state 'filing' %}selected{% endifequal %}>已归档</option>
+            </select>
+        {% endifequal %}
+        <thead>
+            <tr>
+                <th>申请时间</th>
+                <th>合同编号</th>
+                <th>名称</th>
+                <th>类型</th>
+                <th>申请人</th>
+                <th>进度</th>
+                <th>备注</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="mytable">
+            {% for task in page_obj %}
+                <tr>
+                    <td>{{ task.create_time | date:"Y-m-d H:i:s" }}</td>
+                    <td>BR_{{ task.id|add:100000}}</td>
+                    <td title="{{ task.name }}"><a href="{{ task.get_absolute_url }}">{{ task.name | truncatechars:12 }}</a></td>
+                    <td>采购合同</td>
+                    <td>{{ task.workflowactivity.created_by.first_name }} </td>
+                    {% with task.get_current_state as state %}
+                        <td title="{{ state.name }}">{{ state.description }}</td>
+                    {% endwith %}
+                    <td title="{{ task.note }}">{{ task.note | truncatechars:18 }}</td>
+                    {% if task.workflowactivity.current_state.is_end_state and request.user.pro.can_place and task.workflowactivity.current_state.name != '终止' %}
+                        <td><a href="#" id="filing" name="{{ task.id }}" data-toggle="modal" data-target="#filling-modal">归档</a></td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div align="center">
+        {% bootstrap_pagination page_obj url=request.path extra=extra_url_param size="small" %}
+    </div>
+
+    <div class="modal fade contact" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">采购合同申请</h4>
+            </div>
+            <div class="modal-body">
+                <form method="post" class="form" id="contactform" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="partyfirst">甲方:</label>
+                        <select class="form-control" name="contact-partyfirst" style="width: 95%;">
+                            {% for obj in partyfirst %}
+                                <option value="{{ obj.id }}">{{ obj.name }}</option>
+                            {% endfor %}
+                        </select>
+{#                        <a class="addfirst" style="position: absolute; left:95%; top:46px; cursor: pointer;"><i class="glyphicon glyphicon-plus"></i></a>#}
+                    </div>
+                    <div class="form-group">
+                        <label for="partysecond">乙方:</label>
+                        <select class="form-control" name="contact-partysecond" style="width: 95%;">
+                            {% for obj in partysecond %}
+                                <option value="{{ obj.id }}">{{ obj.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <a class="addsecond" style="position: absolute; left:95%; top:119px; cursor: pointer;"><i class="glyphicon glyphicon-plus"></i></a>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-name" class="control-label">名称:</label>
+                        <input type="text" class="form-control" id="contact-name" name="contact-name" onkeyup="this.value=this.value.replace(/^ +| +$/g,'')" placeholder="必填" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-univalent" class="control-label">单价(元):</label>
+                        <input type="text" class="form-control" id="contact-univalent" name="contact-univalent">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-total" class="control-label">总价(元):</label>
+                        <input type="text" class="form-control" id="contact-total" name="contact-total">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-note" class="control-label">描述：</label>
+                        <textarea id="contact-note" name="contact-note" class="form-control" rows="4" placeholder="必填" maxlength="500" onkeyup="this.value=this.value.replace(/^ +| +$/g,'')" required></textarea>
+                    </div>
+                    <div class="form-group" id="myfile">
+                        <label for="attachment">附件</label>
+                        <input type="file" id="attachment" name="attachment" onchange="checkfile(this)">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="addfile">添加附件</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" id="contact">确定</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal fade first" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加甲方</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="contact-total" class="control-label">名称:</label>
+                    <input type="text" class="form-control" name="first-name" id="first-name" placeholder="必填">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" id="first-commmit">确定</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="modal fade second" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加乙方</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="contact-total" class="control-label">名称:</label>
+                    <input type="text" class="form-control" name="second-name" id="second-name" placeholder="必填">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" id="second-commmit">确定</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="filing-modal" tabindex="-1" role="dialog" aria-labelledby="filling-modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><strong>归档</strong></h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" class="form" id="filing_body" enctype="multipart/form-data">{% csrf_token %}
+                        <input type="hidden" id="filing_task_id" name="filing_task_id" value="">
+                        <div class="form-group" >
+                            <label for="filing_note" class="control-label">备注</label>
+                            <textarea id="filing_note" name="filing_note" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="form-group" id="filing_file_group">
+                            <label for="filing_file">附件</label>
+                            <input type="file" id="filing_file" name="filing_file">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="addfilingfile">添加附件</button>
+                    <button type="button" class="btn btn-danger " data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success " id="filing_commit">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        $('#contact').click(function () {
+            var name = $('#contact-name').val();
+            var note = $('#contact-note').val();
+            var data = new FormData($('#contactform').get(0));
+            if (name && note){
+                loadgif(true);
+                $.ajax({
+                url:"/cms/create/",
+                type:"post",
+                data:data,
+                enctype: "multipart/form-data",
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(ret){
+                        if (ret.msg == 0){
+                            location.href = "{% url 'task_list' %}?show=self&my=did";
+                        } else {
+                            bootbox.alert(ret.msg);
+                            loadgif(false);
+                        }
+                    }
+                });
+            } else {
+                bootbox.alert('缺少必填信息');
+            }
+        });
+
+        $("select[name=task-state]").change(function () {
+            location.href = "{% url 'task_list' %}?show={{ show }}&my=" + $(this).val();
+        });
+
+        $("select[name=task-all-state]").change(function () {
+            location.href = "{% url 'task_list' %}?show={{ show }}&state=" + $(this).val();
+        });
+
+
+        $('#addfile').click(function () {
+            var mydom = $("#myfile");
+            mydom.append('<input type="file" id="attachment" name="attachment" onchange="checkfile(this)">')
+        });
+
+        $('.addfirst').click(function () {
+            $('.contact').modal('hide');
+            $('.first').modal('show');
+        });
+
+        $('.addsecond').click(function () {
+            $('.contact').modal('hide');
+            $('.second').modal('show');
+        });
+
+        $('#first-commmit').click(function () {
+            var name = $('#first-name').val();
+            loadgif(true);
+            $.getJSON("/cms/add/partyfirst/", {name: name}, function (ret) {
+                if (ret.msg == 0) {
+                    location.reload();
+                } else {
+                    loadgif(false);
+                    bootbox.alert(ret.msg);
+                }
+            });
+        });
+
+        $('#second-commmit').click(function () {
+            var name = $('#second-name').val();
+            loadgif(true);
+            $.getJSON("/cms/add/partysecond/", {name: name}, function (ret) {
+                if (ret.msg == 0) {
+                    location.reload();
+                } else {
+                    loadgif(false);
+                    bootbox.alert(ret.msg);
+                }
+            });
+        });
+
+        $('#filing_commit').click(function () {
+            var data = new FormData($('#filing_body').get(0));
+            loadgif(true);
+            $.ajax({
+            url:"{% url "filing" %}",
+            type:"post",
+            data:data,
+            enctype: "multipart/form-data",
+            cache: false,
+            processData: false,
+            contentType: false,
+            success:function(ret){
+                    if (ret.msg == 0){
+                        location.reload();
+                    } else {
+                        bootbox.alert(ret.msg);
+                        loadgif(false);
+                    }
+                }
+            });
+        });
+
+
+        $('#mytable').click(function (e) {
+            var $target = $(e.target);
+            if($target.attr('id') == "filing"){
+                var task_id = $target.attr('name');
+                $('#filing_task_id').val(task_id);
+                $('#filing-modal').modal('show');
+            }
+        });
+
+        $('#addfilingfile').click(function () {
+            var mydom = $("#filing_file_group");
+            mydom.append('<input type="file" id="filing_file" name="filing_file">')
+        });
+
+    });
+</script>
+{% endblock %}

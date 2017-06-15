@@ -4,29 +4,20 @@
             <li><a href="/leave/apply/">申请</a></li>
             <li><a href="/leave/notes/">申请记录</a></li>
             <li><a href="/leave/myholiday/">假日详情</a></li>
-            {% if num > 0 %}
-            <li><a href="/leave/myapproval/">审批记录</a></li>
-            {% endif %}
             {% if user.pro.vacation_manager %}
-            <li ><a href="/leave/manager1/">管理界面1</a></li>
-            <li class="active"><a href="/leave/manager2/">管理界面2</a></li>
-            <li><a href="/leave/manager3/">管理界面3</a></li>
+            <li ><a href="/leave/manager1/">管理界面-申请记录</a></li>
+            <li class="active"><a href="/leave/manager2/">管理界面-已审批</a></li>
+            <li><a href="/leave/manager3/">管理界面-待审批</a></li>
             {% endif %}
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <form action="/leave/managersearch2/" method="post">{% csrf_token %}
-          <div class="col-lg-6" style="width:20%; float: right;  " >
+
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="输入申请人" value="{{date}}" name="search">
-              <span class="input-group-btn">
-              <button class="btn btn-default" type="submit">查询</button>
-              </span>
+              <input type="text" name="firstname" class="form-control" placeholder="输入申请人" value="{{firstname}}" >
             </div>
-          </div>
-          </form>
-          <h2 class="sub-header">已审批</h2>
-          
+
+          <h2 class="sub-header">已审批 <a href="/leave/down_approvaled/" style="float: right;"><button type="button" class="btn btn-primary">导出</button></a></h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -67,24 +58,18 @@
               </tbody>
             </table>
           </div>
-          {% if page.paginator.num_pages > 1 %}
-           <nav>
-            <ul class="pager">
-             {% if page.has_previous %}
-              <li ><a href="/leave/manager2/?page={{page.previous_page_number}}">前一页</a></li>
-             {% else %}
-              <li class="disabled"><a href="#" disabled>前一页</a></li>
-              {% endif %}
-              <li>{{page.number}}/{{page.paginator.num_pages}}</li>
-             {% if page.has_next %}
-              <li><a href="/leave/manager2/?page={{page.next_page_number}}">后一页</a></li>
-             {% else%}
-              <li class="disabled"><a href="#" disabled>后一页</a></li>
-              {%endif%}
-            </ul>
-          </nav>
-          {% endif %}
+
+        <div align="center">
+                {% bootstrap_pagination page_obj url=request.path extra=extra_url_param size="small" %}
+        </div>
         </div>
       </div>
     </div>
+<script>
+
+    $("input[name=firstname]").change(function () {
+        location.href = "{% url 'manager2' %}?firstname=" + $(this).val();
+    });
+
+</script>
 {% endblock %}

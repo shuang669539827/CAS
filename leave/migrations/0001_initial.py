@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('start_date', models.DateField(verbose_name=b'\xe8\xb5\xb7\xe5\xa7\x8b\xe6\x97\xa5\xe6\x9c\x9f')),
                 ('end_date', models.DateField(verbose_name=b'\xe7\xbb\x93\xe6\x9d\x9f\xe6\x97\xa5\xe6\x9c\x9f')),
-                ('upfile', models.FileField(max_length=500, upload_to=b'file/%Y/%m')),
+                ('upfile', models.FileField(max_length=500, null=True, upload_to=b'file/%Y/%m', blank=True)),
                 ('half', models.IntegerField(blank=True, null=True, verbose_name=b'\xe5\x8d\x8a\xe5\xa4\xa9,\xe5\x85\xa8\xe5\xa4\xa9', choices=[(0, b'\xe5\x8d\x8a\xe5\xa4\xa9'), (1, b'\xe5\x85\xa8\xe5\xa4\xa9')])),
                 ('desc', models.TextField(max_length=1000, null=True, verbose_name=b'\xe7\x94\xb3\xe8\xaf\xb7\xe7\x90\x86\xe7\x94\xb1', blank=True)),
                 ('apply_date', models.DateTimeField(auto_now_add=True, verbose_name=b'\xe7\x94\xb3\xe8\xaf\xb7\xe6\x97\xa5\xe6\x9c\x9f')),
@@ -31,7 +31,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u7533\u8bf7\u5355',
                 'verbose_name_plural': '\u7533\u8bf7\u5355\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='LeaveType',
@@ -46,7 +45,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u5047\u671f\u7c7b\u578b',
                 'verbose_name_plural': '\u5047\u671f\u7c7b\u578b\u5217\u8868',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='MonthApply',
@@ -62,7 +60,6 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u6708\u7533\u8bf7\u8bb0\u5f55',
                 'verbose_name_plural': '\u6708\u7533\u8bf7\u8bb0\u5f55',
             },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='UserHoliday',
@@ -77,22 +74,19 @@ class Migration(migrations.Migration):
                 'verbose_name': '\u4e2a\u4eba\u5047\u671f\u7edf\u8ba1',
                 'verbose_name_plural': '\u4e2a\u4eba\u5047\u671f\u7edf\u8ba1\u5217\u8868',
             },
-            bases=(models.Model,),
-        ),
-        migrations.AlterUniqueTogether(
-            name='monthapply',
-            unique_together=set([('user', 'year_month')]),
         ),
         migrations.AddField(
             model_name='apply',
             name='leavetype',
             field=models.ForeignKey(verbose_name=b'\xe5\x81\x87\xe6\x9c\x9f\xe7\xb1\xbb\xe5\x9e\x8b', to='leave.LeaveType'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='apply',
             name='user',
             field=models.ForeignKey(verbose_name=b'\xe7\x94\xb3\xe8\xaf\xb7\xe4\xba\xba', to=settings.AUTH_USER_MODEL),
-            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='monthapply',
+            unique_together=set([('user', 'year_month')]),
         ),
     ]

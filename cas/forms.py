@@ -1,8 +1,9 @@
 #coding:utf8
-from django import forms
-from django.contrib.auth.models import User
-from models import Pro, Project, Department, UserRole, Zone, ProjectRole
 import datetime
+
+from django import forms
+
+from models import Pro, Project, Department, UserRole, Zone, ProjectRole
 
 
 class LoginForm(forms.Form):
@@ -13,8 +14,8 @@ class LoginForm(forms.Form):
 
 class InfoForm(forms.Form):
     SEX_NUM = (
-        (0,'男'),
-        (1,'女'),
+        (0, '男'),
+        (1, '女'),
         )
     FLOOR_NUM = (
         (1, '2F'),
@@ -49,7 +50,6 @@ class ProjectRoleForm(forms.ModelForm):
     class Meta:
         model = ProjectRole
         fields = ['name']
-    
 
 
 class DisRoleForm(forms.Form):
@@ -64,6 +64,7 @@ class ProForm(forms.ModelForm):
         model = Pro
         exclude = ['user', 'vercode', 'superior', 'permission', 'add_role_perm', 'vacation_manager', 'dinner_manager', 'user_manger', 'apply_subject_perm']
     superior = forms.CharField(widget=forms.TextInput, label='上级邮箱')
+    status = forms.BooleanField(widget=forms.CheckboxInput, label='在职状态', required=False)
 
 
 class MyForm(forms.ModelForm):
@@ -78,6 +79,21 @@ class PasswdForm(forms.Form):
 
 
 class ApplyPermForm(forms.Form):
+    project = forms.ModelChoiceField(required=True, queryset=None, label='项目名称')
+    role = forms.ModelChoiceField(required=True, initial=ProjectRole.objects.get(name_id=1), queryset=ProjectRole.objects.all(), label='项目角色')
+    zone = forms.ModelChoiceField(required=True, initial=Zone.objects.get(name_id=1), queryset=Zone.objects.all(), label='大区')
+
+    def __init__(self, dptId, *args, **kwargs):
+
+        super(ApplyPermForm, self).__init__(*args, **kwargs)
+        try:
+            department = Department.objects.get(pk=dptId)
+            self.fields['project'].queryset = department.permission
+        except Department.DoesNotExist:
+            pass
+
+
+class ApplyPermFormPost(forms.Form):
     project = forms.ModelChoiceField(required=True, queryset=Project.objects.all(), label='项目名称')
     role = forms.ModelChoiceField(required=True, initial=ProjectRole.objects.get(name_id=1), queryset=ProjectRole.objects.all(), label='项目角色')
     zone = forms.ModelChoiceField(required=True, initial=Zone.objects.get(name_id=1), queryset=Zone.objects.all(), label='大区')

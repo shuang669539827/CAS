@@ -1,4 +1,4 @@
-#coding:utf8
+# coding:utf8
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -45,7 +45,7 @@ class UserRole(models.Model):
 
 class ProjectRole(models.Model):
     name = models.CharField(max_length=60, verbose_name='项目角色', unique=True)
-    name_id = models.IntegerField(unique = True, null=True, blank=True, verbose_name='双索引')
+    name_id = models.IntegerField(unique=True, null=True, blank=True, verbose_name='双索引')
 
     class Meta:
         verbose_name = '项目角色'
@@ -56,9 +56,27 @@ class ProjectRole(models.Model):
         return self.name
 
 
+class Project(models.Model):
+    name = models.CharField(max_length=128, verbose_name='项目名称', unique=True)
+    url = models.CharField(max_length=128, verbose_name='项目地址', unique=True)
+    user = models.ForeignKey(User, verbose_name='项目维护人', null=True, blank=True)
+    desc = models.CharField(max_length=128, verbose_name='项目描述')
+
+    class Meta:
+        verbose_name = '项目'
+        verbose_name_plural = "项目列表"
+        ordering = ['-id']
+
+    def __unicode__(self):
+        return self.name
+
+
 class Department(models.Model):
     name = models.CharField(max_length=60, verbose_name='部门', unique=True)
-    name_id = models.IntegerField(unique = True, null=True, blank=True, verbose_name='双索引')
+    user = models.ForeignKey(User, related_name='leader', verbose_name='部门领导人', null=True, blank=True)
+    name_id = models.IntegerField(unique=True, null=True, blank=True, verbose_name='双索引')
+    permission = models.ManyToManyField(Project, blank=True, verbose_name="访问项目权限")
+    bp = models.ForeignKey(User, related_name='bp', verbose_name='人事负责人', null=True, blank=True)
 
     class Meta:
         verbose_name = '部门'
@@ -82,25 +100,10 @@ class Zone(models.Model):
         return self.name
 
 
-class Project(models.Model):
-    name = models.CharField(max_length=128, verbose_name='项目名称', unique=True)
-    url = models.CharField(max_length=128, verbose_name='项目地址', unique=True)
-    user = models.ForeignKey(User, verbose_name='项目维护人', null=True, blank=True)
-    desc = models.CharField(max_length=128, verbose_name='项目描述')
-
-    class Meta:
-        verbose_name = '项目'
-        verbose_name_plural = "项目列表"
-        ordering = ['-id']
-
-    def __unicode__(self):
-        return self.name
-
-
 class Pro(models.Model):
     SEX_NUM = (
-        (0,'男'),
-        (1,'女'),
+        (0, '男'),
+        (1, '女'),
         )
     FLOOR_NUM = (
         (1, '2F'),
@@ -123,7 +126,7 @@ class Pro(models.Model):
     qq = models.CharField(max_length=100, blank=True, default='', verbose_name="QQ")
     phone = models.CharField(max_length=200, default='', blank=True, verbose_name="联系电话")
     vercode = models.CharField(max_length=200, default='', blank=True, verbose_name="验证码")
-    permission = models.ManyToManyField(Project, null=True, blank=True, verbose_name="访问项目权限")
+    permission = models.ManyToManyField(Project, blank=True, verbose_name="访问项目权限")
     add_role_perm = models.BooleanField(default=False, verbose_name="项目角色权限")
     vacation_manager = models.BooleanField(default=False, verbose_name="假期管理权限")
     dinner_manager = models.BooleanField(default=False, verbose_name="订餐管理权限")
@@ -138,12 +141,18 @@ class Pro(models.Model):
     def __unicode__(self):
         return '%s' % self.user.username
 
+    def can_place(self):
+        return self.user.has_perm('cms.place')
+
+    def can_watch(self):
+        return self.user.has_perm('cms.watch')
+
 
 class UserProject(models.Model):
     user = models.ForeignKey(User, verbose_name="用户")
     project = models.ForeignKey(Project, verbose_name="项目")
-    projectrole = models.ManyToManyField(ProjectRole, null=True, blank=True, verbose_name="角色")
-    name_id = models.IntegerField(unique = True, null=True, blank=True, verbose_name='双索引')
+    projectrole = models.ManyToManyField(ProjectRole, blank=True, verbose_name="角色")
+    name_id = models.IntegerField(unique=True, null=True, blank=True, verbose_name='双索引')
 
     class Meta:
         verbose_name = '项目角色关系'
@@ -156,8 +165,8 @@ class UserProject(models.Model):
 
 class ApplyPerm(models.Model):
     RESULT_NUM = (
-        (0,'拒绝'),
-        (1,'同意'),
+        (0, '拒绝'),
+        (1, '同意'),
         )
     user = models.CharField(max_length=200, default='', blank=True, verbose_name="用户")
     project = models.CharField(max_length=200, default='', blank=True, verbose_name="项目")
@@ -184,4 +193,9 @@ class ServiceTicket(models.Model):
     
     def __unicode__(self):
         return "%s (%s) - %s" % (self.user.username, self.service, self.created)
+
+
+class OutAlarm(models.Model):
+    mail = models.TextField(verbose_name="离职发送邮件")
+
 

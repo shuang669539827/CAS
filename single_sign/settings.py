@@ -1,4 +1,4 @@
-#coding:utf8
+# coding:utf8
 from __future__ import absolute_import
 """
 Django settings for single_sign project.
@@ -17,15 +17,19 @@ from celery.schedules import crontab
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-SESSION_EXPIRE_AT_BROWSER_CLOSE=True;
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 
 EMAIL_HOST = '117.121.48.85'
 EMAIL_HOST_USER = 'cas@100credit.com'
 EMAIL_HOST_PASSWORD = 'iK4uJ1gsaG'
+EMAIL_SUBJECT_PREFIX = 'CAS'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = True
 
+MAIN_DOMAIN = 'http://127.0.0.1:8001'
+
+# MAIN_DOMAIN = 'http://cas.100credit.cn'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -42,24 +46,6 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/login/'
 
-#0, 0, day_of_month=1, month_of_year=1
-BROKER_URL = 'redis://127.0.0.1/12'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1/15'
-CELERY_ENABLE_UTC = True 
-CELERY_TIMEZONE = 'Asia/Shanghai' 
-CELERYBEAT_SCHEDULE = {
-    'add-every-month': {
-        'task': 'task_month',
-        'schedule': crontab(day_of_month=1),
-        'args': ()
-    },
-    'add-every-year': {
-        'task': 'task_year',
-        'schedule': crontab(day_of_month=1, month_of_year=3),
-        'args': ()
-    },
-}
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -71,12 +57,17 @@ INSTALLED_APPS = (
     'dinner',
     'leave',
     'bootstrap3',
+    'mypan',
+    'workflow',
+    'cms',
+    'msg',
+    'checkin',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -95,22 +86,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 DATABASES = {
     'default': {
          'ENGINE': 'django.db.backends.mysql',
-         'NAME': 'cas',
-         'USER': 'root',
-         'PASSWORD': '123',
-         'HOST': 'localhost',
+         'NAME': 'cas_23',
+         'USER': 'yu.zhang',
+         'PASSWORD': '',
+         'HOST': '192.168.162.108',
          'PORT': '3306',
     }
 }
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
-
 MEDIA_ROOT = '/opt/django_project/all_file/CAS/media/'
 MEDIA_URL = '/media/'
 
-
-LANGUAGE_CODE = 'zh-cn'
+LANGUAGE_CODE = 'zh-hans'
 
 SITE_ID = 1
 
@@ -124,41 +111,100 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'single_sign.context_processor.msg',
+            ],
+        },
+    },
+]
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+
 LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': True,
-        'formatters': {
-            'verbose': {
-                'format': '%(asctime)s: %(message)s'
-                }
-            },
-        'filters': {
-            },
-        'handlers': {
-            'daserr': {
-                'level': 'ERROR',
-                'class': 'logging.handlers.RotatingFileHandler',
-                'filename': '/opt/django_project/all_file/CAS/log/err.log',
-                #'filename': os.path.join(os.path.dirname(BASE_DIR), 'log/err.log'),
-                'maxBytes': 1024*1024*5,
-                'backupCount': 5,
-                'formatter': 'verbose',
-                },
-            },
-        'loggers': {
-            'daserr': {
-                'handlers': ['daserr'],
-                'level': 'ERROR',
-                },
-            }
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [CAS%(name)s] [%(threadName)s] %(levelname)s [%(pathname)s--line:%(lineno)d] %(message)s'             
+        },
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s %(name)s : %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'error': {
+            'level': 'ERROR',
+            # 'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'filename': '/opt/django_project/all_file/CAS/log/err.log',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'info.log'),
+            'maxBytes': 1024*1024*10,
+            'backupCount': 8,
+            'formatter': 'simple',
         }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['error'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.security': {
+            'handlers': ['error'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'py.warnings': {
+            'handlers': ['console'],
+        },
+        'daserr': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        }
+    }
+}
+
 
 BOOTSTRAP3 = {
     'jquery_url': '//static/js/jquery.min.js',

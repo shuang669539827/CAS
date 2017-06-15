@@ -1,0 +1,337 @@
+<!DOCTYPE html>{% load staticfiles %}
+<html>
+
+<head>
+    <title>百融网盘</title>
+    <meta http-equiv=Content-Type content="text/html;charset=utf-8">
+    <link rel="stylesheet" href="{% static 'yunpan/libs/bootstrap/bootstrap.min.css'  %}">
+    <link rel="stylesheet" href="{% static 'yunpan/resources/css/base.css'  %}">
+    <link rel="stylesheet" href="{% static 'yunpan/resources/css/all.css'  %}">
+    <script src="{% static 'yunpan/libs/jQuery/jQuery-2.2.0.min.js' %}"></script>
+    <style type="text/css">
+    .user-photo {
+        background-image: url("{% static 'yunpan/resources/img/touxiang.jpg' %}");
+        width: 30px;
+        height: 30px;
+        background-position: 50% 50%;
+        background-size: cover;
+        display: inline-block;
+        vertical-align: center;
+        border-radius: 50%;
+        color: rgb(66, 78, 103);
+        background-color: rgba(0, 0, 0, 0.0980392);
+        border-width: 2px;
+        border-style: solid;
+        border-color: #ddd;
+    }
+    
+    .header-logo {
+        background-image: url("{% static 'yunpan/resources/img/logo.png' %}");
+        width: 142px;
+        height: 42px;
+        float: left;
+        margin-left: 20px;
+    }
+    
+    .header-logo a {
+        display: block;
+        height: 100%;
+        width: 100%;
+        cursor: pointer;
+    }
+    
+    .checkbox {
+        margin-top: 0;
+        margin-bottom: 0;
+        cursor: default;
+        display: block;
+        height: 44px;
+        left: 3px;
+        line-height: 44px;
+        position: absolute;
+        z-index: 1;
+        text-align: left;
+        text-indent: 10px;
+        top: 0;
+        width: 32px;
+        zoom: 1;
+        background: url("{% static 'yunpan/resources/img/checkbox.png' %}") 9px 15px no-repeat;
+    }
+    
+    .dir-small {
+        background-image: url("{% static 'yunpan/resources/img/all_filestyle.png' %}");
+        background-position: -594px -416px;
+        background-repeat: no-repeat;
+    }
+    
+    .fileicon-small-zip {
+        background: url("{% static 'yunpan/resources/img/zip.png' %}") center no-repeat;
+    }
+    
+    .fileicon-small-doc {
+        background: url("{%  static 'yunpan/resources/img/words.png' %}") center no-repeat;
+    }
+    
+    .fileicon-small-text {
+        background:url("{%  static 'yunpan/resources/img/text.png' %}") center no-repeat;
+    }
+    
+    .fileicon-small-pdf {
+        background:url("{%  static 'yunpan/resources/img/pdf.png' %}") center no-repeat;
+    }
+    
+    .fileicon-small-video {
+        background:url("{%  static 'yunpan/esources/img/video.png' %}") center no-repeat;
+    }
+    
+    .fileicon-small-pic {
+        background:url("{%  static 'yunpan/resources/img/picture.png' %}") center no-repeat;
+    }
+    
+    .fileicon-sys-s-exe {
+        background-image: url("{% static 'yunpan/resources/img/plugin.png' %}");
+        background-position: -2px 0px;
+        background-repeat: no-repeat;
+    }
+    
+    .default-small {
+        background-image: url("{% static 'yunpan/resources/img/all_filestyle.png' %}");
+        background-position: -596px -120px;
+        background-repeat: no-repeat;
+    }
+    
+    @font-face {
+        font-family: yunfont;
+        src: url("{% static 'yunpan/resources/font/yunfont.ttf' %}");
+        font-weight: 400;
+        font-style: normal
+    }
+    
+    .no-result-file-bottom {
+        background: url("{%  static 'yunpan/resources/img/empty.png' %}") no-repeat scroll center 0 transparent;
+        padding-top: 146px;
+        width: 488px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        text-align: center;
+        margin: -190px 0 0 -244px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="loading">
+        <img src="{%  static 'yunpan/resources/img/loading2.gif' %}">
+    </div>
+    <div class="header">
+        <dl>
+            <dt class="header-logo">
+                <a href="/yunpan/" title="回到云盘主页"></a>
+            </dt>
+            <dd class="header-link">
+                <span class="link-item">
+                    <a href="#个人网盘" data-type="wangpan">个人网盘</a>
+                    <span class="subscript"></span>
+                </span>
+            </dd>
+            <dd class="header-link">
+                <span class="link-item">
+                    <a href="#公司共享" data-type="share">公司共享</a>
+                    <span></span>
+                </span>
+            </dd>
+            <dd class="header-link">
+                <span class="link-item">
+                    <a href="#部门共享" data-type="department">部门共享</a>
+                    <span></span>
+                </span>
+            </dd>
+            <dd class="header-info">
+                <span class="app-user-info">
+                <i class="user-photo"></i>
+                <span class="user-name">{{ username }}</span>
+                </span>
+                <a href="/" class="index">返回首页</a>
+            </dd>
+        </dl>
+    </div>
+    <ul class="nav nav-pills nav-stacked" id="left-nav">
+        <li><a class="active"><span data-type="all" class="text">全部文件</span></a></li>
+        <li><a><span data-type="pic" class="text">图片</span></a></li>
+        <li><a><span data-type="doc" class="text">文档</span></a></li>
+        <li><a><span data-type="music" class="text">音频</span></a></li>
+        <li><a><span data-type="zip" class="text">压缩包</span></a></li>
+        <li><a><span data-type="pdf" class="text">ＰＤＦ</span></a></li>
+        <li><a><span data-type="other" class="text">其他</span></a></li>
+    </ul>
+    <div id="layoutMain">
+        <div class="module-toolbar">
+            <a class="blue-btn">
+                <span>
+                <em class="icon icon-upload" title="上传"></em>
+                <span class="upload-text">上传</span>
+                </span>
+                <form style="position:absolute;opacity:0;top:0;left:0;width:100%;height:100%;cursor:pointer;">
+                    <input title="点击选择文件" name="InputFile" class="upload-btn" type="file" style="position:absolute;opacity:0;top:0;left:0;width:100%;height:100%;cursor:pointer;"></input>
+                </form>
+            </a>
+            <a href="javascript:void(0);" class="g-button" id="createfile">
+                <span class="g-button-right">
+                    <em class="icon icon-newfolder" title="新建文件夹"></em>
+                    <span>新建文件夹</span>
+                </span>
+            </a>
+            <a href="javascript:void(0);" class="g-button" id="download">
+                <span>
+                    <em class="icon icon-download" title="下载"></em>
+                    <span>下载</span>
+                </span>
+                <form id="download-file" style="display: none;">
+                    <input name="filename" type="hidden">
+                    <input name="relative_path" type="hidden">
+                    <input name="yunpan_type" type="hidden">
+                </form>
+            </a>
+            <div class="list-tools">
+                <a href="#" class="g-button" id="delete-file">
+                    <span>
+                    <em class="icon icon-delete"></em>
+                    <span>删除</span>
+                    </span>
+                </a>
+                <a href="#" class="g-button" id="rename">
+                    <span>
+                    <span>重命名</span>
+                    </span>
+                </a>
+                <!--                 <a href="#" class="g-button">
+                    <span>
+                    <span>复制到</span>
+                    </span>
+                </a>
+                <a href="#" class="g-button">
+                    <span>
+                    <span>移动到</span>
+                    </span>
+                </a> -->
+            </div>
+        </div>
+        <div class="module-list" >
+            <div class="module-history-list">
+                <span>全部文件</span>
+                <span class="history-list-tips"></span>
+                <ul class="historylistmanager-history">
+                    <li>
+                        <a class="back-parent" data-deep='-1'>返回上一级</a>
+                        <span class="historylistmanager-separator">|</span>
+                    </li>
+                    <li>
+                    </li>
+                </ul>
+            </div>
+            <div class="no-result-file-download">
+                <div class="no-result-title no-result-file-bottom">
+                    <div class="no-result-file-word">您还没上传过文件哦，点击
+                        <span class="up-load upload-wrapper" title="" style="cursor: pointer;">上传
+                            <form action="javascript:void(0);" style="position:absolute;opacity:0;top:0;left:0;width:100%;height:100%;cursor:pointer;">
+                                <input type="file" title="点击选择文件" class="upload-btn" style="position:absolute;opacity:0;top:0;left:0;width:100%;height:100%;cursor:pointer;">
+                            </form>
+                        </span>按钮～
+                    </div>
+                </div>
+            </div>
+            <div class="list-view-header">
+                <ul class="list-cols">
+                    <li class="col" style="width:60%;"><span class="text">文件名</span></li>
+                    <li class="col" style="width:16%;"><span class="text">大小</span></li>
+                    <li class="col" style="width:24%;"><span class="text">修改日期</span></li>
+                </ul>
+            </div>
+            <div class="list-view-wrapper" style="height: 80%; overflow: auto;">
+                <dd class="list-view-item  item-first">
+                    <span class="checkbox">
+                        <span class="icon checksmall"></span>
+                    </span>
+                    <div class="fileicon dir-small"></div>
+                    <div class="file-name">
+                        <div class="text">
+                            <a></a>
+                        </div>
+                    </div>
+                    <div class="file-size text">-</div>
+                    <div class="ctime text">-</div>
+                </dd>
+            </div>
+            <div class="module-edit-name" style="left: 20px; top: 58px;">
+                <div class="new-dir-item">
+                    <input id="new-dir-box" class="box" type="text" value="">
+                    <span node-type="new-dir-sure" class="sure">
+                        <em class="icon border-icon"></em>
+                        <em class="icon checksmall-icon"></em>
+                    </span>
+                    <span node-type="new-dir-cancel" class="cancel">
+                        <em class="icon border-icon"></em>
+                        <em class="icon rename-cancel-icon"></em>
+                    </span></div>
+            </div>
+        </div>
+    </div>
+    <div class="dialog-web-uploader">
+        <div class="dialog-header">
+            <h3>
+                    <span>
+                        上传完成
+                    </span>
+                </h3>
+        </div>
+        <div class="dialog-control">
+            <span class="dialog-icon  icon icon-minimize">
+                </span>
+            <span class="dialog-icon dialog-close icon icon-close">
+                </span>
+        </div>
+        <div class="uploader-list-wrapper">
+            <div class="uploader-list-header">
+                <div class="file-name" style="width:150px;">文件(夹)名</div>
+                <div class="file-size">大小</div>
+                <div class="file-status">状态</div>
+            </div>
+            <div class="uploader-list">
+                <ul>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="module-tip">
+        <span class="tip-msg"></span>
+    </div>
+    <div class="dialog dialog-confirm   dialog-gray">
+        <div class="dialog-header dialog-drag">
+            <h3>
+                <span class="dialog-header-title">
+                    <em class="select-text">确认删除</em>
+                </span>
+                <div class="dialog-control">
+                    <span class="dialog-icon dialog-close icon icon-close"></span>
+                </div>
+            </h3>
+        </div>
+        <div class="dialog-body">
+            <div style="text-align:center;padding:40px 22px 22px 22px;">确认要把所选文件删除吗？</div>
+        </div>
+        <div class="dialog-footer g-clearfix">
+            <a class="g-button g-button-blue-large yes">
+                <span class="text">确定</span>
+            </a>
+            <a class="g-button g-button-large no">
+                <span class="text">取消</span>
+            </a>
+        </div>
+    </div>
+    <div class="module-canvas">
+    </div>
+    <script src="{% static 'yunpan/resources/js/yunpan.js' %}"></script>
+</body>
+
+</html>
